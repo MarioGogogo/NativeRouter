@@ -14,11 +14,21 @@ const appName = appJson.name;
 // 远程分包配置（完全由 API 动态提供）
 let remoteBundleConfig = {};
 
+// 【开发调试开关】
+// ⚠️ 警告：设为 true 会导致崩溃 (RuntimeError: factory undefined)，
+// 因为本地运行的是 Debug 主包，而远程是 Release 分包，二者格式不兼容。
+// 想要调试远程分包，请打 Release 包 (npm run build:android)。
+// 想要本地调试代码，请保持此选项为 false 以使用本地 DevServer。
+const ENABLE_REMOTE_BUNDLES_IN_DEV = false;
+
 // 初始化配置
-if (__DEV__) {
-  console.log('[Index] Running in development mode, skipping cloud config...');
+if (__DEV__ && !ENABLE_REMOTE_BUNDLES_IN_DEV) {
+  console.log('[Index] Running in development mode (Local), skipping cloud config...');
 } else {
-  // 生产环境：从云端获取最新的分包配置
+  // 生产环境 或 开发模式强制开启远程：从云端获取最新的分包配置
+  const environment = __DEV__ ? 'Development (Remote)' : 'Production';
+  console.log(`[Index] Running in ${environment} mode, fetching cloud config...`);
+  
   fetchBundleConfigWithRetry()
     .then(config => {
       console.log('[Index] Cloud bundle config loaded successfully:', config);
@@ -76,6 +86,10 @@ export function updateRemoteBundleConfig(config) {
 export async function checkBundleVersion(scriptId) {
   const config = remoteBundleConfig[scriptId];
   if (!config) {
+    // 如果没有配置且是在本地开发模式下，这是正常的，不报警
+    if (__DEV__) {
+      return null;
+    }
     console.warn(`[ScriptManager] No config for chunk: ${scriptId}`);
     return null;
   }
@@ -114,14 +128,14 @@ const loadedVersions = {};
 ScriptManager.shared.addResolver(async scriptId => {
   console.log(`[ScriptManager] Resolving: ${scriptId}, DEV: ${__DEV__}`);
 
-  // 开发模式：从 DevServer 加载所有分包（跳过版本检查）
+  // 开发模式：从 DevServer 加载所有分包
   if (__DEV__) {
     const devUrl = Script.getDevServerURL(scriptId);
     console.log(`[ScriptManager] DevServer URL: ${devUrl}`);
     return {url: devUrl, cache: false};
   }
 
-  // 生产模式：从远程服务器加载分包（使用动态配置 + 版本检查）
+  // 生产模式：从远程服务器加载分包
   const config = remoteBundleConfig[scriptId];
   if (!config) {
     console.warn(`[ScriptManager] No config configured for chunk: ${scriptId}`);
