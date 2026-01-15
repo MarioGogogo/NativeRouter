@@ -119,9 +119,17 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
     }
 }
+
+// Config for react-native-vector-icons
+project.ext.vectoricons = [
+    iconFontNames: [ 'MaterialIcons.ttf' ] 
+]
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+

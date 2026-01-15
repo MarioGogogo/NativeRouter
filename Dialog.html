@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "success": "#22c55e",
+                        "warning": "#f59e0b",
+                        "error": "#ef4444",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Noto Sans SC", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen text-[#111318]">
+<div class="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+<div class="flex items-center gap-3 bg-white/90 dark:bg-[#1c2433]/90 backdrop-blur-md px-5 py-3 rounded-full shadow-lg border border-red-100 dark:border-red-900/30 pointer-events-auto">
+<span class="material-symbols-outlined text-error text-2xl">error</span>
+<span class="text-[#111318] dark:text-white font-medium">网络连接失败</span>
+</div>
+</div>
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden pb-20">
+<div class="flex items-center bg-white dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<div class="text-[#111318] dark:text-white flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined">arrow_back_ios</span>
+</div>
+<h2 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">多态弹窗组件集合 (更新版)</h2>
+</div>
+<div class="px-4 py-6">
+<h3 class="text-[#111318] dark:text-white tracking-light text-2xl font-bold leading-tight text-center pb-2">组件设计规范</h3>
+<p class="text-[#616f89] dark:text-gray-400 text-center text-sm px-8">本页展示了各种核心交互场景的弹窗设计规范，保持克制且高效的视觉语言。</p>
+</div>
+<div class="p-4 @container">
+<div class="mb-4 flex items-center gap-2 px-2">
+<span class="h-2 w-2 rounded-full bg-success"></span>
+<span class="text-xs font-bold text-[#616f89] uppercase tracking-widest">Success State</span>
+</div>
+<div class="flex flex-col items-center justify-start rounded-xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white dark:bg-[#1c2433] border border-gray-100 dark:border-gray-800">
+<div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10 text-success">
+<span class="material-symbols-outlined !text-5xl">check_circle</span>
+</div>
+<p class="text-[#111318] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] mb-2">提交成功</p>
+<p class="text-[#616f89] dark:text-gray-400 text-center text-base font-normal leading-normal mb-8">您的操作已成功处理，点击下方按钮返回主页。</p>
+<button class="w-full flex h-12 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-white text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">确定</span>
+</button>
+</div>
+</div>
+<div class="p-4 @container mt-4">
+<div class="mb-4 flex items-center gap-2 px-2">
+<span class="h-2 w-2 rounded-full bg-warning"></span>
+<span class="text-xs font-bold text-[#616f89] uppercase tracking-widest">Warning State</span>
+</div>
+<div class="flex flex-col items-center justify-start rounded-xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white dark:bg-[#1c2433] border border-gray-100 dark:border-gray-800">
+<div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-warning/10 text-warning">
+<span class="material-symbols-outlined !text-5xl">warning</span>
+</div>
+<p class="text-[#111318] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] mb-2">确认删除？</p>
+<p class="text-[#616f89] dark:text-gray-400 text-center text-base font-normal leading-normal mb-8">删除后数据将无法恢复，请您在操作前再次确认。</p>
+<div class="flex w-full gap-3">
+<button class="flex-1 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 bg-background-light dark:bg-gray-800 text-[#111318] dark:text-white text-base font-bold">
+<span class="truncate">取消</span>
+</button>
+<button class="flex-1 flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 bg-primary text-white text-base font-bold">
+<span class="truncate">确认</span>
+</button>
+</div>
+</div>
+</div>
+<div class="p-4 @container mt-4">
+<div class="mb-4 flex items-center gap-2 px-2">
+<span class="h-2 w-2 rounded-full bg-primary"></span>
+<span class="text-xs font-bold text-[#616f89] uppercase tracking-widest">Update Modal</span>
+</div>
+<div class="flex flex-col items-center justify-start rounded-xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white dark:bg-[#1c2433] border border-gray-100 dark:border-gray-800">
+<div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary">
+<span class="material-symbols-outlined !text-5xl">system_update_alt</span>
+</div>
+<p class="text-[#111318] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] mb-2">发现新版本</p>
+<p class="text-[#616f89] dark:text-gray-400 text-center text-base font-normal leading-normal mb-8">我们修复了一些已知问题并提升了性能体验。</p>
+<div class="flex flex-col w-full gap-3">
+<button class="w-full flex h-12 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-white text-base font-bold leading-normal">
+<span class="truncate">立即更新</span>
+</button>
+<button class="w-full flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-transparent text-[#616f89] dark:text-gray-400 text-base font-medium">
+<span class="truncate">以后再说</span>
+</button>
+</div>
+</div>
+</div>
+<div class="h-10 bg-transparent"></div>
+</div>
+
+</body></html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "success": "#10b981",
+                        "error": "#ef4444",
+                        "warning": "#f59e0b",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .toast-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .loading-spinner {
+            border: 3px solid rgba(19, 91, 236, 0.1);
+            border-top: 3px solid #135bec;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#111318] dark:text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col max-w-[430px] mx-auto bg-white dark:bg-[#111318] overflow-x-hidden shadow-2xl">
+<!-- TopAppBar -->
+<div class="flex items-center bg-white dark:bg-[#111318] p-4 pb-2 justify-between sticky top-0 z-50 border-b border-gray-100 dark:border-gray-800">
+<div class="text-[#111318] dark:text-white flex size-12 shrink-0 items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios</span>
+</div>
+<h2 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Toast 组件设计规范全集</h2>
+</div>
+<!-- HeadlineText -->
+<div class="px-4 pt-6 pb-2">
+<h3 class="text-[#111318] dark:text-white tracking-light text-2xl font-bold leading-tight">组件定义</h3>
+<div class="h-1 w-12 bg-primary mt-2 rounded-full"></div>
+</div>
+<!-- BodyText -->
+<div class="px-4">
+<p class="text-[#111318]/70 dark:text-white/70 text-base font-normal leading-normal pb-3 pt-1">
+                Toast 是一种轻量级的反馈方式，用于显示简短的通知信息。它以浮层的形式呈现在界面上方，会在屏幕上停留几秒钟后自动消失，不会中断用户的操作流。
+            </p>
+</div>
+<!-- SectionHeader -->
+<div class="px-4 pb-2 pt-6">
+<h3 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">反馈类型规范</h3>
+<p class="text-sm text-gray-400 font-normal">Variants &amp; Feedback States</p>
+</div>
+<!-- Toast Showcase Grid -->
+<div class="px-4 space-y-6 mt-4">
+<!-- Success Toast -->
+<div class="space-y-2">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">01 Success - 成功状态</span>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-5 py-3 rounded-full toast-shadow border border-gray-50 dark:border-gray-700 w-fit">
+<div class="text-success flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">check_circle</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-medium">操作成功</p>
+</div>
+</div>
+<!-- Error Toast -->
+<div class="space-y-2">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">02 Error - 错误状态</span>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-5 py-3 rounded-full toast-shadow border border-gray-50 dark:border-gray-700 w-fit">
+<div class="text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">cancel</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-medium">数据加载失败</p>
+</div>
+</div>
+<!-- Warning Toast -->
+<div class="space-y-2">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">03 Warning - 警示状态</span>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-5 py-3 rounded-full toast-shadow border border-gray-50 dark:border-gray-700 w-fit">
+<div class="text-warning flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">warning</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-medium">请检查网络设置</p>
+</div>
+</div>
+<!-- Info Toast -->
+<div class="space-y-2">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">04 Info - 信息通知</span>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-5 py-3 rounded-full toast-shadow border border-gray-50 dark:border-gray-700 w-fit">
+<div class="text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">info</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-medium">新消息已送达</p>
+</div>
+</div>
+<!-- Loading Toast -->
+<div class="space-y-2">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">05 Loading - 处理状态</span>
+<div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-5 py-3 rounded-full toast-shadow border border-gray-50 dark:border-gray-700 w-fit">
+<div class="shrink-0 flex items-center justify-center">
+<div class="loading-spinner"></div>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-medium">正在处理中...</p>
+</div>
+</div>
+<!-- Pure Text Toast -->
+<div class="space-y-2">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">06 Pure Text - 纯文字状态</span>
+<div class="flex items-center bg-black/80 dark:bg-white/90 px-6 py-2.5 rounded-full toast-shadow backdrop-blur-md w-fit">
+<p class="text-white dark:text-black text-sm font-medium">已复制到剪贴板</p>
+</div>
+</div>
+</div>
+<!-- Specification Details Section -->
+<div class="px-4 pt-10 pb-4">
+<h3 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">参数规范</h3>
+<div class="h-5"></div>
+<div class="space-y-1 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+<div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+<span class="text-sm text-gray-500 dark:text-gray-400">高度 Height</span>
+<span class="text-sm font-mono font-bold">48px</span>
+</div>
+<div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+<span class="text-sm text-gray-500 dark:text-gray-400">圆角 Radius</span>
+<span class="text-sm font-mono font-bold">rounded-full (999px)</span>
+</div>
+<div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+<span class="text-sm text-gray-500 dark:text-gray-400">阴影 Shadow</span>
+<span class="text-sm font-mono font-bold">Custom Soft Drop</span>
+</div>
+<div class="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+<span class="text-sm text-gray-500 dark:text-gray-400">内间距 Padding</span>
+<span class="text-sm font-mono font-bold">H:20px V:12px</span>
+</div>
+<div class="flex justify-between py-2">
+<span class="text-sm text-gray-500 dark:text-gray-400">字体 Typography</span>
+<span class="text-sm font-mono font-bold">Jakarta / 16px</span>
+</div>
+</div>
+</div>
+<!-- Usage Guidelines -->
+<div class="px-4 pb-12">
+<h3 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] pt-6 pb-4">使用建议</h3>
+<!-- ListItem usage -->
+<div class="flex items-center gap-4 bg-white dark:bg-gray-900 px-4 min-h-14 justify-between rounded-xl mb-3 border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-4">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-normal leading-normal flex-1">显示时长控制在 2-3s</p>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-gray-900 px-4 min-h-14 justify-between rounded-xl mb-3 border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-4">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined">layers</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-normal leading-normal flex-1">层级应高于所有业务组件</p>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-gray-900 px-4 min-h-14 justify-between rounded-xl border border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-4">
+<div class="text-primary flex items-center justify-center rounded-lg bg-primary/10 shrink-0 size-10">
+<span class="material-symbols-outlined">text_fields</span>
+</div>
+<p class="text-[#111318] dark:text-white text-base font-normal leading-normal flex-1">文字内容建议不超过 10 个汉字</p>
+</div>
+</div>
+</div>
+<!-- Footer Decor -->
+<div class="h-10"></div>
+</div>
+</body></html>
