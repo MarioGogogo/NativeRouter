@@ -67,6 +67,25 @@ export async function fetchBundleConfig(): Promise<Record<string, { url: string;
   }
 }
 
+const DEFAULT_CONFIG: Record<string, { url: string; version: string }> = {
+  profile: {
+    url: 'https://gitee.com/webcc/doudizhu/releases/download/v1.1.12/profile.chunk.bundle',
+    version: 'v1.1.12',
+  },
+  settings: {
+    url: 'https://gitee.com/webcc/doudizhu/releases/download/v1.1.14/settings.chunk.bundle',
+    version: 'v1.1.14',
+  },
+  shop: {
+    url: 'https://gitee.com/webcc/doudizhu/releases/download/v1.1.9/shop.chunk.bundle',
+    version: 'v1.1.9',
+  },
+  feature: {
+    url: 'https://gitee.com/webcc/doudizhu/releases/download/v1.1/feature.chunk.bundle',
+    version: 'v1.1',
+  },
+};
+
 /**
  * 获取云端分包配置（带重试）
  */
@@ -87,5 +106,7 @@ export async function fetchBundleConfigWithRetry(maxRetries = 3, retryDelay = 10
     }
   }
   
-  throw lastError || new Error('Failed to fetch bundle config after retries');
+  console.warn('[BundleConfigService] All API retries failed, using DEFAULT config fallback.');
+  // 如果所有重试都失败，返回默认配置（用于测试或离线场景）
+  return DEFAULT_CONFIG;
 }
