@@ -25,7 +25,7 @@ export async function fetchBundleConfig(): Promise<Record<string, { url: string;
     console.log('[BundleConfigService] Fetching bundle config from:', API_URL);
     
     const response = await fetch(API_URL, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
