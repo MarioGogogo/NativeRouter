@@ -40,16 +40,16 @@ export default Repack.defineRspackConfig({
       // 多分包配置：每个功能模块独立打包
       extraChunks: [
         {
-          include: /feature/,
-          type: 'local',  // 改为 local，打包到 APK 中
+          include: /FeatureScreen/,
+          type: 'local',  // 打包到 APK 中
         },
         {
-          include: /settings/,
-          type: 'local',  // 改为 local，打包到 APK 中
+          include: /SettingsScreen/,
+          type: 'local',  // 打包到 APK 中
         },
         {
-          include: /shop/,
-          type: 'local',  // 改为 local，打包到 APK 中
+          include: /ShopScreen/,
+          type: 'local',  // 打包到 APK 中
         },
       ],
     }),
