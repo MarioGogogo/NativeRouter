@@ -18,26 +18,25 @@ import Dialog, { DialogRef, DialogType } from '../components/Dialog';
 const { width } = Dimensions.get('window');
 
 // Mock Data
-const CATEGORIES: { 
-    id: string; 
-    name: string; 
-    icon: string; 
-    color: string; 
-    iconColor: string; 
-    isDashed?: boolean; 
-    toastType?: ToastType; 
-    toastMsg?: string;
-    dialogType?: DialogType; // Add dialog trigger support
+const CATEGORIES: {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  iconColor: string;
+  isDashed?: boolean;
+  toastType?: ToastType;
+  toastMsg?: string;
+  dialogType?: DialogType; // Add dialog trigger support
 }[] = [
-  { id: '1', name: '日程', icon: 'calendar-today', color: '#eef2ff', iconColor: '#6366f1', toastType: 'success', toastMsg: '日程已同步' },
-  { id: '2', name: '健康', icon: 'favorite-border', color: '#fff1f2', iconColor: '#f43f5e', dialogType: 'warning' }, // Trigger Warning Dialog
-  { id: '3', name: '钱包', icon: 'account-balance-wallet', color: '#ecfdf5', iconColor: '#10b981', toastType: 'warning', toastMsg: '余额不足' },
-  { id: '4', name: '消息', icon: 'chat-bubble-outline', color: '#faf5ff', iconColor: '#a855f7', toastType: 'info', toastMsg: '收到3条新消息' },
-  { id: '5', name: '统计', icon: 'bar-chart', color: '#fff7ed', iconColor: '#f97316', dialogType: 'success' }, // Trigger Success Dialog
-  { id: '6', name: '文件', icon: 'cloud-queue', color: '#ecfeff', iconColor: '#06b6d4', toastType: 'text', toastMsg: '文件已归档' },
-  { id: '7', name: '设置', icon: 'settings', color: '#f1f5f9', iconColor: '#475569', toastType: 'success', toastMsg: '设置已保存' },
-  { id: '8', name: '更多', icon: 'add', color: '#f8fafc', iconColor: '#cbd5e1', isDashed: true, dialogType: 'update' }, // Trigger Update Dialog
-];
+    { id: '1', name: '日程', icon: 'calendar-today', color: '#eef2ff', iconColor: '#6366f1', toastType: 'success', toastMsg: '日程已同步' },
+    { id: '2', name: '健康', icon: 'favorite-border', color: '#fff1f2', iconColor: '#f43f5e', dialogType: 'warning' }, // Trigger Warning Dialog
+    { id: '3', name: '钱包', icon: 'account-balance-wallet', color: '#ecfdf5', iconColor: '#10b981', toastType: 'warning', toastMsg: '余额不足' },
+    { id: '4', name: '消息', icon: 'chat-bubble-outline', color: '#faf5ff', iconColor: '#a855f7', toastType: 'info', toastMsg: '收到3条新消息' },
+    { id: '5', name: '统计', icon: 'bar-chart', color: '#fff7ed', iconColor: '#f97316', dialogType: 'success' }, // Trigger Success Dialog
+    { id: '6', name: '文件', icon: 'cloud-queue', color: '#ecfeff', iconColor: '#06b6d4', toastType: 'text', toastMsg: '文件已归档' },
+    { id: '7', name: '更多', icon: 'add', color: '#f8fafc', iconColor: '#cbd5e1', isDashed: true, dialogType: 'update' }, // Trigger Update Dialog
+  ];
 
 const ACTIVITIES = [
   { id: '1', title: '收到新订单', time: '2 分钟前', icon: 'shopping-bag', bg: '#eef2ff', color: '#6366f1' },
@@ -51,38 +50,38 @@ export default function RecommendScreen() {
   const handleGridPress = (item: typeof CATEGORIES[0]) => {
     // Priority: Dialog > Toast
     if (item.dialogType && dialogRef.current) {
-        if (item.dialogType === 'warning') {
-            dialogRef.current.show({
-                type: 'warning',
-                title: '确认删除？',
-                message: '删除后数据将无法恢复，请您在操作前再次确认。',
-                confirmText: '确认',
-                cancelText: '取消',
-                onConfirm: () => toastRef.current?.show({ type: 'success', message: '已删除' }),
-            });
-        } else if (item.dialogType === 'success') {
-             dialogRef.current.show({
-                type: 'success',
-                title: '提交成功',
-                message: '您的操作已成功处理，点击下方按钮返回主页。',
-                confirmText: '确定',
-             });
-        } else if (item.dialogType === 'update') {
-             dialogRef.current.show({
-                type: 'update',
-                title: '发现新版本',
-                message: '我们修复了一些已知问题并提升了性能体验。',
-                confirmText: '立即更新',
-                cancelText: '以后再说',
-                onConfirm: () => toastRef.current?.show({ type: 'loading', message: '正在更新...', duration: 3000 }),
-             });
-        }
-    } else if (item.toastType && toastRef.current) {
-        toastRef.current.show({
-            type: item.toastType,
-            message: item.toastMsg || 'Toast Message',
-            duration: item.toastType === 'loading' ? 3000 : 2000,
+      if (item.dialogType === 'warning') {
+        dialogRef.current.show({
+          type: 'warning',
+          title: '确认删除？',
+          message: '删除后数据将无法恢复，请您在操作前再次确认。',
+          confirmText: '确认',
+          cancelText: '取消',
+          onConfirm: () => toastRef.current?.show({ type: 'success', message: '已删除' }),
         });
+      } else if (item.dialogType === 'success') {
+        dialogRef.current.show({
+          type: 'success',
+          title: '提交成功',
+          message: '您的操作已成功处理，点击下方按钮返回主页。',
+          confirmText: '确定',
+        });
+      } else if (item.dialogType === 'update') {
+        dialogRef.current.show({
+          type: 'update',
+          title: '发现新版本',
+          message: '我们修复了一些已知问题并提升了性能体验。',
+          confirmText: '立即更新',
+          cancelText: '以后再说',
+          onConfirm: () => toastRef.current?.show({ type: 'loading', message: '正在更新...', duration: 3000 }),
+        });
+      }
+    } else if (item.toastType && toastRef.current) {
+      toastRef.current.show({
+        type: item.toastType,
+        message: item.toastMsg || 'Toast Message',
+        duration: item.toastType === 'loading' ? 3000 : 2000,
+      });
     }
   };
 
@@ -91,7 +90,7 @@ export default function RecommendScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
       <Toast ref={toastRef} />
       <Dialog ref={dialogRef} />
-      
+
       {/* Top Header */}
       <View style={styles.header}>
         <View>
@@ -104,8 +103,8 @@ export default function RecommendScreen() {
         />
       </View>
 
-      <ScrollView 
-        style={styles.scrollView} 
+      <ScrollView
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
@@ -130,18 +129,18 @@ export default function RecommendScreen() {
           {/* Right Card - Progress */}
           <View style={[styles.card, styles.rightCard]}>
             <View style={styles.rightCardHeader}>
-               <View style={styles.awardIconCircle}>
-                  <MaterialIcons name="verified" size={20} color="#d97706" />
-               </View>
-               <View style={styles.badge}>
-                  <Text style={styles.badgeText}>高级版</Text>
-               </View>
+              <View style={styles.awardIconCircle}>
+                <MaterialIcons name="verified" size={20} color="#d97706" />
+              </View>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>高级版</Text>
+              </View>
             </View>
             <View>
-               <Text style={styles.cardLabelGray}>每月目标进度</Text>
-               <View style={styles.progressBarBg}>
-                  <View style={styles.progressBarFill} />
-               </View>
+              <Text style={styles.cardLabelGray}>每月目标进度</Text>
+              <View style={styles.progressBarBg}>
+                <View style={styles.progressBarFill} />
+              </View>
             </View>
           </View>
         </View>
@@ -150,14 +149,14 @@ export default function RecommendScreen() {
         <Text style={styles.sectionTitle}>全部分类 (点击触发 Toast)</Text>
         <View style={styles.gridContainer}>
           {CATEGORIES.map((item) => (
-            <TouchableOpacity 
-                key={item.id} 
-                style={styles.gridItem}
-                onPress={() => handleGridPress(item)}
+            <TouchableOpacity
+              key={item.id}
+              style={styles.gridItem}
+              onPress={() => handleGridPress(item)}
             >
-              <View 
+              <View
                 style={[
-                  styles.gridIconContainer, 
+                  styles.gridIconContainer,
                   { backgroundColor: item.color },
                   item.isDashed && styles.dashedBorder
                 ]}
@@ -173,48 +172,26 @@ export default function RecommendScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>最新动态</Text>
           <TouchableOpacity>
-             <Text style={styles.seeAllText}>查看全部</Text>
+            <Text style={styles.seeAllText}>查看全部</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.listContainer}>
           {ACTIVITIES.map((item) => (
             <View key={item.id} style={styles.listItem}>
-               <View style={[styles.listIconContainer, { backgroundColor: item.bg }]}>
-                  <MaterialIcons name={item.icon} size={24} color={item.color} />
-               </View>
-               <View style={styles.listContent}>
-                  <Text style={styles.listTitle}>{item.title}</Text>
-                  <Text style={styles.listTime}>{item.time}</Text>
-               </View>
+              <View style={[styles.listIconContainer, { backgroundColor: item.bg }]}>
+                <MaterialIcons name={item.icon} size={24} color={item.color} />
+              </View>
+              <View style={styles.listContent}>
+                <Text style={styles.listTitle}>{item.title}</Text>
+                <Text style={styles.listTime}>{item.time}</Text>
+              </View>
             </View>
           ))}
         </View>
-        
+
         {/* Extra space for bottom bar */}
         <View style={{ height: 100 }} />
       </ScrollView>
-
-      {/* Floating Bottom Navigation */}
-      <View style={styles.bottomBarContainer}>
-        <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.tabItem}>
-            <MaterialIcons name="grid-view" size={28} color="#6366f1" />
-            <Text style={[styles.tabLabel, { color: '#6366f1' }]}>首页</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <MaterialIcons name="explore" size={28} color="#94a3b8" />
-            <Text style={styles.tabLabel}>发现</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <MaterialIcons name="notifications-none" size={28} color="#94a3b8" />
-            <Text style={styles.tabLabel}>通知</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.tabItem}>
-            <MaterialIcons name="person-outline" size={28} color="#94a3b8" />
-            <Text style={styles.tabLabel}>个人</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
     </View>
   );
@@ -428,37 +405,6 @@ const styles = StyleSheet.create({
   },
   listTime: {
     fontSize: 13,
-    color: '#94a3b8',
-  },
-  // Bottom Bar
-  bottomBarContainer: {
-    position: 'absolute',
-    bottom: 24,
-    left: 24,
-    right: 24,
-    alignItems: 'center',
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    borderRadius: 32,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 10,
-    width: '100%',
-    justifyContent: 'space-between',
-  },
-  tabItem: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: '600',
     color: '#94a3b8',
   },
 });

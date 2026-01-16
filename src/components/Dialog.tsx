@@ -41,19 +41,19 @@ const Dialog = forwardRef<DialogRef, {}>((props, ref) => {
     show: (params: DialogParams) => {
       setConfig(params);
       setVisible(true);
-      scaleAnim.setValue(0.5); // Start smaller for better pop effect
+      scaleAnim.setValue(0.9);
       Animated.parallel([
         Animated.timing(animValue, {
           toValue: 1,
-          duration: 200,
+          duration: 250,
           useNativeDriver: true,
           easing: Easing.out(Easing.ease),
         }),
-        Animated.spring(scaleAnim, {
+        Animated.timing(scaleAnim, {
           toValue: 1,
-          friction: 5,   // Low friction = bouncy
-          tension: 100,  // High tension = snappy
+          duration: 250,
           useNativeDriver: true,
+          easing: Easing.bezier(0.25, 0.46, 0.45, 0.94), // iOS 标准缓动曲线
         }),
       ]).start();
     },
@@ -61,13 +61,22 @@ const Dialog = forwardRef<DialogRef, {}>((props, ref) => {
   }));
 
   const handleHide = () => {
-    Animated.timing(animValue, {
-      toValue: 0,
-      duration: 150,
-      useNativeDriver: true,
-    }).start(() => {
-        setVisible(false);
-        scaleAnim.setValue(0.9);
+    Animated.parallel([
+      Animated.timing(animValue, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.ease),
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 0.9,
+        duration: 200,
+        useNativeDriver: true,
+        easing: Easing.in(Easing.ease),
+      }),
+    ]).start(() => {
+      setVisible(false);
+      scaleAnim.setValue(0.9);
     });
   };
 

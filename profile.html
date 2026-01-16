@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html class="light" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>个人中心与设置 (无导航栏)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#007AFF',
+              'background-light': '#F2F2F7',
+              'background-dark': '#000000',
+              'card-light': '#FFFFFF',
+              'card-dark': '#1C1C1E',
+            },
+            fontFamily: {
+              display: [
+                'Inter',
+                'sans-serif',
+                'PingFang SC',
+                'Microsoft YaHei',
+              ],
+            },
+            borderRadius: {
+              DEFAULT: '12px',
+            },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      body {
+        @apply font-display;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .ios-list-item:last-child {
+        border-bottom: none;
+      }
+    </style>
+    <style>
+      body {
+        min-height: max(884px, 100dvh);
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex justify-center"
+  >
+    <div class="w-full max-w-md min-h-screen flex flex-col relative pb-12">
+      <div class="px-6 pt-12 pb-6 flex justify-between items-end">
+        <h1 class="text-3xl font-bold tracking-tight">个人中心</h1>
+      </div>
+      <div class="px-4 mb-8">
+        <div
+          class="bg-card-light dark:bg-card-dark rounded-2xl p-4 flex items-center shadow-sm"
+        >
+          <div class="relative">
+            <img
+              alt="User Avatar"
+              class="w-16 h-16 rounded-full object-cover border-2 border-primary/10"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmy-DpMWHYd7Hd4zGNpg68DobT6rT1Gi8lKrKtvyT-SVPuzjnOAGn1T8qNL_sB_x4nV8StzgYjtasN5rJMw-5OFFM4BeerTqfrTd1XTVSzTM_P_YoMC1M03HQCPXGPsSN1a92j5wHXnBt7y2_C8YcgQeVoRVyjGtxCCwpQDmKLtUcH4AgR8T6OKTvyqUmCWOyy8MveJ2UHvjD2S2RNWBpxf2CIBhdEF7xeaZ_XDtqv30ZClJvEY_CNU5nk8tafklEFUgphmC6BxQST"
+            />
+            <div
+              class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-card-dark rounded-full"
+            ></div>
+          </div>
+          <div class="ml-4 flex-1">
+            <h2 class="text-lg font-semibold leading-tight">Alex Harrison</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              账号设置、个人资料管理
+            </p>
+          </div>
+          <span class="material-symbols-outlined text-slate-400"
+            >chevron_right</span
+          >
+        </div>
+      </div>
+      <div class="space-y-6 px-4 flex-1">
+        <div
+          class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden shadow-sm"
+        >
+          <div
+            class="flex items-center px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 ios-list-item"
+          >
+            <div
+              class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white mr-3"
+            >
+              <span class="material-symbols-outlined text-lg">bookmark</span>
+            </div>
+            <span class="flex-1 font-medium">我的收藏</span>
+            <span class="material-symbols-outlined text-slate-400"
+              >chevron_right</span
+            >
+          </div>
+          <div
+            class="flex items-center px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 ios-list-item"
+          >
+            <div
+              class="w-8 h-8 rounded-lg bg-slate-500 flex items-center justify-center text-white mr-3"
+            >
+              <span class="material-symbols-outlined text-lg">settings</span>
+            </div>
+            <span class="flex-1 font-medium">设置</span>
+            <span class="material-symbols-outlined text-slate-400"
+              >chevron_right</span
+            >
+          </div>
+          <div class="flex items-center px-4 py-3.5 ios-list-item">
+            <div
+              class="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center text-white mr-3"
+            >
+              <span class="material-symbols-outlined text-lg">help</span>
+            </div>
+            <span class="flex-1 font-medium">帮助与反馈</span>
+            <span class="material-symbols-outlined text-slate-400"
+              >chevron_right</span
+            >
+          </div>
+        </div>
+        <div
+          class="bg-card-light dark:bg-card-dark rounded-2xl overflow-hidden shadow-sm"
+        >
+          <div
+            class="flex items-center px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 ios-list-item"
+          >
+            <div
+              class="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center text-white mr-3"
+            >
+              <span class="material-symbols-outlined text-lg"
+                >notifications</span
+              >
+            </div>
+            <span class="flex-1 font-medium">消息通知</span>
+            <span class="material-symbols-outlined text-slate-400"
+              >chevron_right</span
+            >
+          </div>
+          <div class="flex items-center px-4 py-3.5 ios-list-item">
+            <div
+              class="w-8 h-8 rounded-lg bg-purple-500 flex items-center justify-center text-white mr-3"
+            >
+              <span class="material-symbols-outlined text-lg">shield</span>
+            </div>
+            <span class="flex-1 font-medium">隐私与安全</span>
+            <span class="material-symbols-outlined text-slate-400"
+              >chevron_right</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <button
+      class="fixed top-4 right-4 w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 z-50"
+      onclick="document.documentElement.classList.toggle('dark')"
+    >
+      <span class="material-symbols-outlined text-xl dark:text-yellow-400"
+        >dark_mode</span
+      >
+    </button>
+  </body>
+</html>

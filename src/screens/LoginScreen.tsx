@@ -12,6 +12,11 @@ import {
 } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useAppStore } from '../store/useAppStore';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootNavigator';
+
+type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 // --- Colors & Theme Configuration ---
 const COLORS = {
@@ -74,10 +79,26 @@ const MeshGradient = ({ isDark }: { isDark: boolean }) => {
   );
 };
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }: LoginScreenProps) {
   const systemColorScheme = useColorScheme();
   const isDark = systemColorScheme === 'dark';
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  // 全局状态管理
+  const { login } = useAppStore();
+
+  // 登录处理函数
+  const handleLogin = () => {
+    // 模拟登录成功，更新全局状态
+    login('mock-token-123', {
+      name: 'React Native 开发者',
+      level: 10,
+      points: 8888,
+    });
+
+    // 登录成功后跳转到主页面
+    navigation.replace('MainTabs');
+  };
 
   const themeColors = isDark ? COLORS.backgroundDark : COLORS.backgroundLight;
   const textColor = isDark ? COLORS.white : COLORS.slate900;
@@ -153,7 +174,7 @@ export default function LoginScreen() {
           </View>
 
           {/* Login Button */}
-          <TouchableOpacity style={styles.button} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={handleLogin}>
             <Text style={styles.buttonText}>进入</Text>
             <MaterialIcons name="arrow-forward" size={20} color={COLORS.white} />
           </TouchableOpacity>
