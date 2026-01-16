@@ -2,11 +2,11 @@
  * @format
  */
 
-import {AppRegistry} from 'react-native';
-import {ScriptManager, Script} from '@callstack/repack/client';
+import { AppRegistry } from 'react-native';
+import { ScriptManager, Script } from '@callstack/repack/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import App from './App';
-import {fetchBundleConfigWithRetry} from './src/services/BundleConfigService';
+import { fetchBundleConfigWithRetry } from './src/services/BundleConfigService';
 
 const appJson = require('./app.json');
 const appName = appJson.name;
@@ -14,21 +14,14 @@ const appName = appJson.name;
 // 远程分包配置（完全由 API 动态提供）
 let remoteBundleConfig = {};
 
-// 【开发调试开关】
-// ⚠️ 警告：设为 true 会导致崩溃 (RuntimeError: factory undefined)，
-// 因为本地运行的是 Debug 主包，而远程是 Release 分包，二者格式不兼容。
-// 想要调试远程分包，请打 Release 包 (npm run build:android)。
-// 想要本地调试代码，请保持此选项为 false 以使用本地 DevServer。
-const ENABLE_REMOTE_BUNDLES_IN_DEV = false;
-
 // 初始化配置
-if (__DEV__ && !ENABLE_REMOTE_BUNDLES_IN_DEV) {
-  console.log('[Index] Running in development mode (Local), skipping cloud config...');
+if (__DEV__) {
+  console.log(
+    '[Index] Running in development mode (Local), skipping cloud config...',
+  );
 } else {
-  // 生产环境 或 开发模式强制开启远程：从云端获取最新的分包配置
-  const environment = __DEV__ ? 'Development (Remote)' : 'Production';
-  console.log(`[Index] Running in ${environment} mode, fetching cloud config...`);
-  
+  // 生产环境：从云端获取最新的分包配置
+  console.log('[Index] Running in Production mode, fetching cloud config...');
   fetchBundleConfigWithRetry()
     .then(config => {
       console.log('[Index] Cloud bundle config loaded successfully:', config);
@@ -54,7 +47,9 @@ export function setVersionCheckCallback(callback) {
 export function confirmBundleUpdate(screen, version) {
   const oldVersion = loadedVersions[screen];
   loadedVersions[screen] = version;
-  console.log(`[ScriptManager] Bundle ${screen} confirmed: ${oldVersion} -> ${version}`);
+  console.log(
+    `[ScriptManager] Bundle ${screen} confirmed: ${oldVersion} -> ${version}`,
+  );
   return oldVersion && oldVersion !== version;
 }
 
@@ -65,21 +60,34 @@ export function updateRemoteBundleConfig(config) {
   for (const scriptId in config) {
     const oldConfig = remoteBundleConfig[scriptId];
     if (oldConfig && !loadedVersions[scriptId]) {
-      const oldVersion = typeof oldConfig === 'string' ? null : oldConfig.version;
+      const oldVersion =
+        typeof oldConfig === 'string' ? null : oldConfig.version;
       if (oldVersion) {
         loadedVersions[scriptId] = oldVersion;
-        console.log(`[ScriptManager] Initialize loadedVersions for ${scriptId}: ${oldVersion}`);
+        console.log(
+          `[ScriptManager] Initialize loadedVersions for ${scriptId}: ${oldVersion}`,
+        );
       }
     }
   }
 
-  remoteBundleConfig = {...remoteBundleConfig, ...config};
+  remoteBundleConfig = { ...remoteBundleConfig, ...config };
 
   console.log(
     '[ScriptManager] Remote bundle config updated:',
     remoteBundleConfig,
   );
   console.log('[ScriptManager] Loaded versions:', loadedVersions);
+}
+
+// 检查分包配置是否存在（供外部调用）
+export function isBundleConfigured(scriptId) {
+  // 开发模式下总是返回 true（使用 DevServer）
+  if (__DEV__) {
+    return true;
+  }
+  const config = remoteBundleConfig[scriptId];
+  return !!config;
 }
 
 // 直接检查某个分包是否有更新（供外部调用）
@@ -132,7 +140,7 @@ ScriptManager.shared.addResolver(async scriptId => {
   if (__DEV__) {
     const devUrl = Script.getDevServerURL(scriptId);
     console.log(`[ScriptManager] DevServer URL: ${devUrl}`);
-    return {url: devUrl, cache: false};
+    return { url: devUrl, cache: false };
   }
 
   // 生产模式：从远程服务器加载分包
@@ -152,10 +160,14 @@ ScriptManager.shared.addResolver(async scriptId => {
   // 首次加载时，记录版本
   if (!cachedVersion && latestVersion) {
     loadedVersions[scriptId] = latestVersion;
-    console.log(`[ScriptManager] First load ${scriptId} version: ${latestVersion}`);
+    console.log(
+      `[ScriptManager] First load ${scriptId} version: ${latestVersion}`,
+    );
   }
 
-  console.log(`[ScriptManager] Loading remote chunk: ${scriptId} from ${versionedUrl}`);
+  console.log(
+    `[ScriptManager] Loading remote chunk: ${scriptId} from ${versionedUrl}`,
+  );
   return {
     url: versionedUrl,
     cache: true, // Re.Pack 会基于 URL 变化自动更新缓存

@@ -18,6 +18,17 @@ NC='\033[0m' # No Color
 PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# 加载 nvm 并使用 Node.js v20（如果已安装）
+if [ -f "$HOME/.nvm/nvm.sh" ]; then
+    source "$HOME/.nvm/nvm.sh"
+    # 尝试使用 Node.js v20
+    if nvm use 20 >/dev/null 2>&1; then
+        echo -e "${GREEN}[Node] 已切换到 Node.js v20${NC}"
+    else
+        echo -e "${YELLOW}[Node] Node.js v20 未安装，使用当前版本: $(node -v)${NC}"
+    fi
+fi
+
 # 构建类型 (默认 release)
 BUILD_TYPE="${1:-release}"
 

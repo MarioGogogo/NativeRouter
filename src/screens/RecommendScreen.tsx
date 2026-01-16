@@ -39,7 +39,7 @@ const CATEGORIES: {
   ];
 
 const ACTIVITIES = [
-  { id: '1', title: '收到新订单', time: '2 分钟前', icon: 'shopping-bag', bg: '#eef2ff', color: '#6366f1' },
+  { id: '1', title: '收到新通知', time: '2 分钟前', icon: 'shopping-bag', bg: '#eef2ff', color: '#6366f1' },
   { id: '2', title: '会议邀请', time: '45 分钟前', icon: 'mail-outline', bg: '#fdf2f8', color: '#db2777' },
 ];
 

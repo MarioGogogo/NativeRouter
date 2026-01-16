@@ -3,9 +3,9 @@
  */
 
 import React, { useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated, Easing, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Animated, Easing, StatusBar, ActivityIndicator, Modal } from 'react-native';
 import { useAppStore } from '../store/useAppStore';
-import { updateRemoteBundleConfig, checkBundleVersion } from '../../index';
+import { updateRemoteBundleConfig, checkBundleVersion, isBundleConfigured, confirmBundleUpdate } from '../../index';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { TabParamList } from '../navigation/TabNavigator';
 
@@ -73,11 +73,13 @@ function LoadingView() {
   );
 }
 
-// 屏幕映射配置（已移除用户中心和设置页面）
+// 屏幕映射配置（提供默认彩色样式，API 返回的数据会覆盖这些默认值）
 const screenMapping: Record<string, { label: string; color: string; emoji: string }> = {
   shop: { label: '商城页面', color: '#FF9800', emoji: '🛒' },
   feature: { label: '功能页面', color: '#F44336', emoji: '🚀' },
   update: { label: '更新测试', color: '#673AB7', emoji: '🔄' },
+  settings: { label: '设置页面', color: '#2196F3', emoji: '⚙️' },
+  profile: { label: '个人中心', color: '#4CAF50', emoji: '👤' },
 };
 
 // API 地址
@@ -106,6 +108,7 @@ const fetchBundleList = async () => {
       const urlParts = item.url.split('/').filter(Boolean);
       const fileName = urlParts[urlParts.length - 1]?.replace('.chunk.bundle', '') || '';
       // 排除 profile 和 settings 分包
+      // 注意：update 分包现在是真正的分包，不再排除
       return fileName !== 'profile' && fileName !== 'settings';
     });
 
@@ -135,10 +138,43 @@ const fetchBundleList = async () => {
   }
 };
 
+// 更新对话框组件
+function UpdateDialog({ visible, updateInfo, onConfirm, onCancel }: {
+  visible: boolean;
+  updateInfo: { screen: string; currentVersion: string; latestVersion: string } | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>🔄 发现新版本</Text>
+          <Text style={styles.modalMessage}>
+            分包 "{updateInfo?.screen}" 有新版本可用{'\n'}
+            当前版本: {updateInfo?.currentVersion}{'\n'}
+            最新版本: {updateInfo?.latestVersion}
+          </Text>
+          <View style={styles.modalButtons}>
+            <TouchableOpacity style={styles.modalButtonCancel} onPress={onCancel}>
+              <Text style={styles.modalButtonTextCancel}>取消</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButtonConfirm} onPress={onConfirm}>
+              <Text style={styles.modalButtonTextConfirm}>立即更新</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function ChunkScreen({ navigation }: ChunkScreenProps) {
-  const { isLoggedIn, user, cartCount, darkMode, login, logout, bundleConfigs, setBundleConfigs } = useAppStore();
+  const { isLoggedIn, user, cartCount, darkMode, login, logout, bundleConfigs, setBundleConfigs, pendingUpdate } = useAppStore();
   const [loading, setLoading] = React.useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [showUpdateDialog, setShowUpdateDialog] = React.useState(false);
+  const [updatesAvailable, setUpdatesAvailable] = React.useState<Set<string>>(new Set());
 
   // 加载分包配置
   const loadBundleConfigs = useCallback(async (isRefresh = false) => {
@@ -158,6 +194,9 @@ export default function ChunkScreen({ navigation }: ChunkScreenProps) {
       });
       updateRemoteBundleConfig(urlConfig);
       console.log('[ChunkScreen] 分包配置已更新:', urlConfig);
+
+      // 检查所有分包的更新状态
+      checkAllUpdates(list);
     } catch (error) {
       console.error('[ChunkScreen] 加载分包配置失败:', error);
     } finally {
@@ -165,6 +204,25 @@ export default function ChunkScreen({ navigation }: ChunkScreenProps) {
       setRefreshing(false);
     }
   }, [setBundleConfigs]);
+
+  // 检查所有分包是否有更新
+  const checkAllUpdates = useCallback(async (bundles: Array<{ screen: string }>) => {
+    const updates = new Set<string>();
+
+    for (const bundle of bundles) {
+      try {
+        const updateInfo = await checkBundleVersion(bundle.screen);
+        if (updateInfo && updateInfo.isUpdateAvailable) {
+          updates.add(bundle.screen);
+          console.log(`[ChunkScreen] ${bundle.screen} 有新版本可用`);
+        }
+      } catch (error) {
+        console.warn(`[ChunkScreen] 检查 ${bundle.screen} 更新失败:`, error);
+      }
+    }
+
+    setUpdatesAvailable(updates);
+  }, []);
 
   useEffect(() => {
     // 如果已经有缓存数据，不再请求
@@ -178,11 +236,54 @@ export default function ChunkScreen({ navigation }: ChunkScreenProps) {
     loadBundleConfigs(false);
   }, []); // 只在组件挂载时执行一次
 
-  // 点击分包时直接检查版本
+  // 监听 pendingUpdate 状态变化，显示更新对话框
+  useEffect(() => {
+    if (pendingUpdate) {
+      console.log('[ChunkScreen] 检测到待更新:', pendingUpdate);
+      setShowUpdateDialog(true);
+    }
+  }, [pendingUpdate]);
+
+  // 确认更新
+  const handleConfirmUpdate = useCallback(() => {
+    if (!pendingUpdate) return;
+
+    console.log('[ChunkScreen] 用户确认更新:', pendingUpdate);
+    const needReload = confirmBundleUpdate(pendingUpdate.screen, pendingUpdate.latestVersion);
+
+    // 清除更新状态
+    useAppStore.getState().setPendingUpdate(null);
+    setShowUpdateDialog(false);
+
+    if (needReload) {
+      // 需要重新加载页面
+      console.log('[ChunkScreen] 需要重新加载分包');
+      const parentNavigation = navigation.getParent();
+      parentNavigation?.navigate(pendingUpdate.screen as never);
+    }
+  }, [pendingUpdate, navigation]);
+
+  // 取消更新
+  const handleCancelUpdate = useCallback(() => {
+    console.log('[ChunkScreen] 用户取消更新');
+    useAppStore.getState().setPendingUpdate(null);
+    setShowUpdateDialog(false);
+  }, []);
+
+  // 点击分包时检查配置和版本
   const handleNavigate = useCallback(async (screen: string) => {
     console.log('[ChunkScreen] 点击分包:', screen);
 
-    // 直接检查版本
+    // 首先检查分包配置是否存在
+    if (!isBundleConfigured(screen)) {
+      console.log('[ChunkScreen] 分包配置不存在:', screen);
+      // 配置不存在，跳转到错误页面
+      const parentNavigation = navigation.getParent() as any;
+      parentNavigation?.navigate('BundleError', { bundleName: screen });
+      return;
+    }
+
+    // 检查版本更新
     const updateInfo = await checkBundleVersion(screen);
 
     if (updateInfo && updateInfo.isUpdateAvailable) {
@@ -208,6 +309,12 @@ export default function ChunkScreen({ navigation }: ChunkScreenProps) {
   return (
     <View style={[styles.container, darkMode && styles.darkContainer]}>
       <StatusBar barStyle={darkMode ? 'light-content' : 'dark-content'} backgroundColor={darkMode ? '#1a1a1a' : '#f5f5f5'} />
+      <UpdateDialog
+        visible={showUpdateDialog}
+        updateInfo={pendingUpdate}
+        onConfirm={handleConfirmUpdate}
+        onCancel={handleCancelUpdate}
+      />
       <Text style={[styles.title, darkMode && styles.darkText]}>📦 分包页面</Text>
 
       {/* 状态展示区域 */}
@@ -248,24 +355,33 @@ export default function ChunkScreen({ navigation }: ChunkScreenProps) {
         <LoadingView />
       ) : bundleConfigs.length > 0 ? (
         <ScrollView style={styles.buttonList} showsVerticalScrollIndicator={false}>
-          {bundleConfigs.map((item) => (
-            <TouchableOpacity
-              key={item.uniqueKey}
-              style={[styles.navButton, { backgroundColor: item.color }]}
-              onPress={() => handleNavigate(item.screen)}
-            >
-              <Text style={styles.buttonEmoji}>{item.emoji}</Text>
-              <View style={styles.buttonContent}>
-                <Text style={styles.buttonLabel}>{item.label}</Text>
-                <Text style={styles.buttonChunk}>chunk: {item.screen} ({item.version})</Text>
-              </View>
-              {item.screen === 'shop' && cartCount > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{cartCount}</Text>
+          {bundleConfigs.map((item) => {
+            const hasUpdate = updatesAvailable.has(item.screen);
+            return (
+              <TouchableOpacity
+                key={item.uniqueKey}
+                style={[styles.navButton, { backgroundColor: item.color }]}
+                onPress={() => handleNavigate(item.screen)}
+              >
+                {/* 更新徽章 */}
+                {hasUpdate && (
+                  <View style={styles.updateBadge}>
+                    <Text style={styles.updateBadgeText}>NEW</Text>
+                  </View>
+                )}
+                <Text style={styles.buttonEmoji}>{item.emoji}</Text>
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonLabel}>{item.label}</Text>
+                  <Text style={styles.buttonChunk}>chunk: {item.screen} ({item.version})</Text>
                 </View>
-              )}
-            </TouchableOpacity>
-          ))}
+                {item.screen === 'shop' && cartCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{cartCount}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       ) : null}
     </View>
@@ -342,6 +458,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     marginBottom: 12,
+    overflow: 'visible', // 允许徽章超出按钮边界
   },
   buttonEmoji: {
     fontSize: 28,
@@ -373,6 +490,26 @@ const styles = StyleSheet.create({
     color: '#FF9800',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  updateBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: '#FF4444',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    shadowColor: '#FF4444',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 4,
+  },
+  updateBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   loadingOverlay: {
     position: 'absolute',
@@ -433,6 +570,66 @@ const styles = StyleSheet.create({
   refreshButtonText: {
     color: '#fff',
     fontSize: 12,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: '80%',
+    maxWidth: 320,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 16,
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButtonCancel: {
+    flex: 1,
+    backgroundColor: '#e0e0e0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtonConfirm: {
+    flex: 1,
+    backgroundColor: '#6366f1',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtonTextCancel: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalButtonTextConfirm: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
 });

@@ -20,6 +20,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Toast, { ToastRef } from '../components/Toast';
 import Dialog, { DialogRef } from '../components/Dialog';
 import { useAppStore } from '../store/useAppStore';
+import { isBundleConfigured } from '../../index';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -61,6 +62,13 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
   const handleMenuPress = (title: string) => {
     // 特殊处理：设置菜单跳转到分包页面
     if (title === '设置') {
+      // 检查分包配置是否存在
+      if (!isBundleConfigured('settings')) {
+        // 配置不存在，跳转到错误页面
+        const parentNavigation = navigation.getParent() as any;
+        parentNavigation?.navigate('BundleError', { bundleName: 'settings' });
+        return;
+      }
       // 嵌套导航：获取父级导航器（RootNavigator）并导航到 Settings
       const parentNavigation = navigation.getParent();
       parentNavigation?.navigate('Settings' as never);
@@ -179,22 +187,22 @@ export default function ProfileScreen({ navigation }: ProfileScreenProps) {
           onPress={() => handleMenuPress('个人资料')}
         >
           <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
-            <Image
-              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBmy-DpMWHYd7Hd4zGNpg68DobT6rT1Gi8lKrKtvyT-SVPuzjnOAGn1T8qNL_sB_x4nV8StzgYjtasN5rJMw-5OFFM4BeerTqfrTd1XTVSzTM_P_YoMC1M03HQCPXGPsSN1a92j5wHXnBt7y2_C8YcgQeVoRVyjGtxCCwpQDmKLtUcH4AgR8T6OKTvyqUmCWOyy8MveJ2UHvjD2S2RNWBpxf2CIBhdEF7xeaZ_XDtqv30ZClJvEY_CNU5nk8tafklEFUgphmC6BxQST' }}
-              style={styles.avatar}
-            />
-            <View style={styles.onlineIndicator} />
+            <View style={styles.avatarContainer}>
+              <Image
+                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBmy-DpMWHYd7Hd4zGNpg68DobT6rT1Gi8lKrKtvyT-SVPuzjnOAGn1T8qNL_sB_x4nV8StzgYjtasN5rJMw-5OFFM4BeerTqfrTd1XTVSzTM_P_YoMC1M03HQCPXGPsSN1a92j5wHXnBt7y2_C8YcgQeVoRVyjGtxCCwpQDmKLtUcH4AgR8T6OKTvyqUmCWOyy8MveJ2UHvjD2S2RNWBpxf2CIBhdEF7xeaZ_XDtqv30ZClJvEY_CNU5nk8tafklEFUgphmC6BxQST' }}
+                style={styles.avatar}
+              />
+              <View style={styles.onlineIndicator} />
+            </View>
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>{displayName}</Text>
+              <Text style={styles.userBio}>{displayBio}</Text>
+              {isLoggedIn && user?.level && (
+                <Text style={styles.userLevel}>等级 LV.{user.level}</Text>
+              )}
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#94a3b8" />
           </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>{displayName}</Text>
-            <Text style={styles.userBio}>{displayBio}</Text>
-            {isLoggedIn && user?.level && (
-              <Text style={styles.userLevel}>等级 LV.{user.level}</Text>
-            )}
-          </View>
-          <MaterialIcons name="chevron-right" size={24} color="#94a3b8" />
-        </View>
         </TouchableOpacity>
 
         {/* Menu Groups */}

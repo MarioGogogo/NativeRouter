@@ -1,3 +1,11 @@
+/*
+ * @Author: EdisonChan 148373644@qq.com
+ * @Date: 2026-01-16 16:21:53
+ * @LastEditors: EdisonChan 148373644@qq.com
+ * @LastEditTime: 2026-01-16 16:34:53
+ * @FilePath: /NativeRouter/rspack.config.mjs
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as Repack from '@callstack/repack';
@@ -37,19 +45,28 @@ export default Repack.defineRspackConfig({
   },
   plugins: [
     new Repack.RepackPlugin({
+      platform: 'android', // 明确指定平台
       // 多分包配置：每个功能模块独立打包
       extraChunks: [
         {
-          include: /FeatureScreen/,
-          type: 'remote',  // 从远程服务器加载
+          include: /feature/,
+          type: 'remote',
+          outputPath: path.join(__dirname, 'build/output/android/remote'),
         },
         {
-          include: /SettingsScreen/,
-          type: 'remote',  // 从远程服务器加载
+          include: /settings/,
+          type: 'remote',
+          outputPath: path.join(__dirname, 'build/output/android/remote'),
         },
         {
-          include: /ShopScreen/,
-          type: 'remote',  // 从远程服务器加载
+          include: /shop/,
+          type: 'remote',
+          outputPath: path.join(__dirname, 'build/output/android/remote'),
+        },
+        {
+          include: /update/,
+          type: 'remote',
+          outputPath: path.join(__dirname, 'build/output/android/remote'),
         },
       ],
     }),

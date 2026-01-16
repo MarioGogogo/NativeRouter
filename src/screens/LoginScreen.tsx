@@ -13,6 +13,8 @@ import {
 import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useAppStore } from '../store/useAppStore';
+import { fetchBundleConfigWithRetry } from '../services/BundleConfigService';
+import { updateRemoteBundleConfig } from '../../index';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
@@ -96,8 +98,18 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       points: 8888,
     });
 
-    // 登录成功后跳转到主页面
+    // 立即跳转到主页面（不等待分包配置加载）
     navigation.replace('MainTabs');
+
+    // 后台异步获取分包配置（不阻塞页面跳转）
+    fetchBundleConfigWithRetry()
+      .then(config => {
+        console.log('[LoginScreen] Bundle config loaded:', config);
+        updateRemoteBundleConfig(config);
+      })
+      .catch(error => {
+        console.warn('[LoginScreen] Failed to fetch bundle config:', error);
+      });
   };
 
   const themeColors = isDark ? COLORS.backgroundDark : COLORS.backgroundLight;
@@ -111,13 +123,13 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   return (
     <View style={[styles.container, { backgroundColor: themeColors }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
-      
+
       {/* Full Screen Mesh Gradient */}
       <MeshGradient isDark={isDark} />
 
       {/* Main Content */}
       <View style={styles.mainContent}>
-        
+
         {/* Header Section */}
         <View style={styles.header}>
           <View style={[styles.iconContainer, isDark ? styles.iconContainerDark : styles.iconContainerLight]}>
@@ -154,14 +166,14 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               placeholderTextColor={COLORS.slate400}
               secureTextEntry={secureTextEntry}
             />
-            <TouchableOpacity 
-              style={styles.eyeIcon} 
+            <TouchableOpacity
+              style={styles.eyeIcon}
               onPress={() => setSecureTextEntry(!secureTextEntry)}
             >
-              <MaterialIcons 
-                name={secureTextEntry ? "visibility" : "visibility-off"} 
-                size={24} 
-                color={COLORS.slate400} 
+              <MaterialIcons
+                name={secureTextEntry ? "visibility" : "visibility-off"}
+                size={24}
+                color={COLORS.slate400}
               />
             </TouchableOpacity>
           </View>
@@ -178,29 +190,29 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             <Text style={styles.buttonText}>进入</Text>
             <MaterialIcons name="arrow-forward" size={20} color={COLORS.white} />
           </TouchableOpacity>
-          
+
           {/* Divider */}
           <View style={styles.dividerContainer}>
-             <View style={[styles.dividerLine, { borderTopColor: isDark ? COLORS.slate700 : COLORS.slate200 }]} />
-             <View style={styles.dividerTextContainer}>
-                <Text style={{ backgroundColor: themeColors, paddingHorizontal: 8, color: COLORS.slate500, fontSize: 14, fontWeight: '500' }}>或继续</Text>
-             </View>
+            <View style={[styles.dividerLine, { borderTopColor: isDark ? COLORS.slate700 : COLORS.slate200 }]} />
+            <View style={styles.dividerTextContainer}>
+              <Text style={{ backgroundColor: themeColors, paddingHorizontal: 8, color: COLORS.slate500, fontSize: 14, fontWeight: '500' }}>或继续</Text>
+            </View>
           </View>
 
           {/* Social Login Buttons */}
           <View style={styles.socialGrid}>
-             <TouchableOpacity style={[styles.socialButton, { backgroundColor: socialBtnBg, borderColor: socialBtnBorder }]}>
-                <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyGQWb5biHvs-Dz5qAyK_peD_YuXX6BtOmKnWzKJ10GNpZjbA0jKgXfOeFF6c2K25zu-xnGxRTOnu1JOGFXeraikEq1tfRIhO-GGXaY0y0dVVvT424kAhxiXGKjN3STi_PMPxa0kaB9YYTv5ZhnbB-esb7pPV6_jyzpJx5dXBr1eXnABFxJ-EfQfRGViHeQOfPlOcu2MhvkHc5nAVk3pJ329r3jEQUfueWLBY2IVuTqKue4EA5w9NTkTwLgspXabF1zT49xbinge7I' }} style={styles.socialIcon} />
-                <Text style={[styles.socialText, { color: isDark ? COLORS.slate200 : COLORS.slate700 }]}>Google</Text>
-             </TouchableOpacity>
+            <TouchableOpacity style={[styles.socialButton, { backgroundColor: socialBtnBg, borderColor: socialBtnBorder }]}>
+              <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyGQWb5biHvs-Dz5qAyK_peD_YuXX6BtOmKnWzKJ10GNpZjbA0jKgXfOeFF6c2K25zu-xnGxRTOnu1JOGFXeraikEq1tfRIhO-GGXaY0y0dVVvT424kAhxiXGKjN3STi_PMPxa0kaB9YYTv5ZhnbB-esb7pPV6_jyzpJx5dXBr1eXnABFxJ-EfQfRGViHeQOfPlOcu2MhvkHc5nAVk3pJ329r3jEQUfueWLBY2IVuTqKue4EA5w9NTkTwLgspXabF1zT49xbinge7I' }} style={styles.socialIcon} />
+              <Text style={[styles.socialText, { color: isDark ? COLORS.slate200 : COLORS.slate700 }]}>Google</Text>
+            </TouchableOpacity>
 
-             <TouchableOpacity style={[styles.socialButton, { backgroundColor: socialBtnBg, borderColor: socialBtnBorder }]}>
-                <Image 
-                  source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBW2cRwB1o7qWLWF9WMQMKExjdB1bjA2-kwqVVE5bS5Qlxe-F6_ld8hRhRtKwz3bnsc0ebjDpmF3GxXhQ3M6vVeQmU3nSs-GELw48PUTW2yDyQU7yRXCXNXCQre04nU5YNKBsUgxb13L-JFSHuUNfGO2sRkih31K1PKsc10Fu7bRl0Eua-LgQ2XbQgkxqX8_yfV9CErs_UjpCN-8kFioG0ZkhVP27Ru6RweD-fN0uB06px9xWEZTYYZh51Hzizy2KrOuaTzaZq76Caj' }} 
-                  style={[styles.socialIcon, isDark && { tintColor: 'white' }]} 
-                />
-                <Text style={[styles.socialText, { color: isDark ? COLORS.slate200 : COLORS.slate700 }]}>Apple</Text>
-             </TouchableOpacity>
+            <TouchableOpacity style={[styles.socialButton, { backgroundColor: socialBtnBg, borderColor: socialBtnBorder }]}>
+              <Image
+                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBW2cRwB1o7qWLWF9WMQMKExjdB1bjA2-kwqVVE5bS5Qlxe-F6_ld8hRhRtKwz3bnsc0ebjDpmF3GxXhQ3M6vVeQmU3nSs-GELw48PUTW2yDyQU7yRXCXNXCQre04nU5YNKBsUgxb13L-JFSHuUNfGO2sRkih31K1PKsc10Fu7bRl0Eua-LgQ2XbQgkxqX8_yfV9CErs_UjpCN-8kFioG0ZkhVP27Ru6RweD-fN0uB06px9xWEZTYYZh51Hzizy2KrOuaTzaZq76Caj' }}
+                style={[styles.socialIcon, isDark && { tintColor: 'white' }]}
+              />
+              <Text style={[styles.socialText, { color: isDark ? COLORS.slate200 : COLORS.slate700 }]}>Apple</Text>
+            </TouchableOpacity>
           </View>
 
         </View>
@@ -218,7 +230,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
       {/* Home Indicator */}
       <View style={styles.homeIndicatorContainer}>
-         <View style={[styles.homeIndicator, { backgroundColor: isDark ? COLORS.slate700 : COLORS.slate300 }]} />
+        <View style={[styles.homeIndicator, { backgroundColor: isDark ? COLORS.slate700 : COLORS.slate300 }]} />
       </View>
     </View>
   );
@@ -333,7 +345,7 @@ const styles = StyleSheet.create({
   },
   dividerContainer: {
     position: 'relative',
-    paddingVertical: 16, 
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -20,7 +20,7 @@ export interface TabItem {
 const TABS: TabItem[] = [
   { key: 'Home', label: '首页', icon: 'home' },
   { key: 'Explore', label: '圈子', icon: 'explore' },
-  { key: 'Notifications', label: '订单', icon: 'list-alt' },
+  { key: 'Notifications', label: '通知', icon: 'list-alt' },
   { key: 'Profile', label: '我的', icon: 'person-outline' },
 ];
 
