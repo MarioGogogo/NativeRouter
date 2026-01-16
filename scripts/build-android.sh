@@ -36,42 +36,83 @@ mkdir -p android/app/src/main/assets
 
 # Step 2: 打包 JS Bundle
 echo -e "${GREEN}[2/5] 打包 JS Bundle...${NC}"
-if [ "$BUILD_TYPE" = "debug" ]; then
-    echo -e "${YELLOW}  Debug 模式：使用 webpack (支持代码分割)${NC}"
-    NODE_ENV=development npx react-native webpack-bundle \
-        --platform android \
-        --dev true \
-        --entry-file index.js \
-        --bundle-output android/app/src/main/assets/index.android.bundle \
-        --assets-dest android/app/src/main/res
-else
-    echo -e "${YELLOW}  Release 模式：使用 webpack (支持代码分割)${NC}"
-    NODE_ENV=production npx react-native webpack-bundle \
+
+# 检查 Node.js 版本（Re.Pack 5.x 需要 Node.js v19+）
+NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+if [ "$BUILD_TYPE" = "release" ] && [ "$NODE_VERSION" -lt 19 ]; then
+    echo -e "${RED}  ⚠️  警告：Re.Pack 5.x 需要 Node.js v19 或更高版本${NC}"
+    echo -e "${YELLOW}  当前 Node.js 版本：v$(node -v)${NC}"
+    echo -e "${YELLOW}  将使用 Metro 打包（不支持远程代码分割）${NC}"
+    echo ""
+    echo -e "${BLUE}  💡 升级建议：${NC}"
+    echo -e "     nvm install 20        # 安装 Node.js v20"
+    echo -e "     nvm use 20            # 使用 Node.js v20"
+    echo ""
+
+    # 直接使用 Metro CLI，绕过 Re.Pack
+    # Metro 输出 .bundle.js 文件，需要重命名为 .bundle
+    NODE_ENV=production npx metro build index.js \
         --platform android \
         --dev false \
+        --minify true \
+        --out android/app/build/generated/assets/react/release/index.android.bundle.js \
+        --project-roots . \
+        --reset-cache
+
+    # 重命名 bundle 文件
+    if [ -f "android/app/build/generated/assets/react/release/index.android.bundle.js" ]; then
+        mv android/app/build/generated/assets/react/release/index.android.bundle.js \
+           android/app/build/generated/assets/react/release/index.android.bundle
+    fi
+elif [ "$BUILD_TYPE" = "debug" ]; then
+    echo -e "${YELLOW}  Debug 模式：从 DevServer 加载${NC}"
+    # 直接使用 Metro CLI
+    npx metro build index.js \
+        --platform android \
+        --dev true \
+        --out android/app/src/main/assets/index.android.bundle \
+        --project-roots . \
+        --reset-cache
+else
+    echo -e "${YELLOW}  Release 模式：使用 Re.Pack webpack (支持远程代码分割)${NC}"
+    # 使用 Re.Pack 的 webpack-bundle 命令构建主包和远程分包
+    # 远程分包会输出到 build/output/android/remote/ 目录
+    NODE_ENV=production npx react-native webpack-bundle \
         --entry-file index.js \
-        --bundle-output android/app/src/main/assets/index.android.bundle \
+        --platform android \
+        --dev false \
+        --bundle-output android/app/build/generated/assets/react/release/index.android.bundle \
         --assets-dest android/app/src/main/res
 fi
 
 # Step 3: 显示打包结果
 echo -e "${GREEN}[3/5] Bundle 打包完成，检查生成的文件...${NC}"
 echo -e "${YELLOW}主包文件:${NC}"
-ls -lh android/app/src/main/assets/index.android.bundle 2>/dev/null || echo "  无主 bundle 文件"
 
-echo ""
-echo -e "${YELLOW}分包文件 (Chunk):${NC}"
-find android/app/src/main/assets -name "*.chunk.bundle" 2>/dev/null | while read file; do
-    echo "  $(basename "$file"): $(ls -lh "$file" | awk '{print $5}')"
-done || echo "  无 chunk 文件"
-echo ""
-
-# 检查远程分包
-if [ -d "build/output" ]; then
-    echo -e "${YELLOW}远程分包输出:${NC}"
-    find build/output -name "*.bundle" -exec ls -lh {} \;
-    echo ""
+if [ -f "android/app/build/generated/assets/react/release/index.android.bundle" ]; then
+    ls -lh android/app/build/generated/assets/react/release/index.android.bundle
+elif [ -f "android/app/src/main/assets/index.android.bundle" ]; then
+    ls -lh android/app/src/main/assets/index.android.bundle
+else
+    echo "  无主 bundle 文件"
 fi
+
+echo ""
+echo -e "${YELLOW}远程分包输出:${NC}"
+if [ -d "build/output/android/remote" ]; then
+    find build/output/android/remote -name "*.bundle" 2>/dev/null | while read file; do
+        echo "  $(basename "$file"): $(ls -lh "$file" | awk '{print $5}')"
+    done
+else
+    NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$BUILD_TYPE" = "release" ] && [ "$NODE_VERSION" -lt 19 ]; then
+        echo "  ⚠️  Node.js v$(node -v) 不支持 Re.Pack 远程分包"
+        echo "  📌 所有页面已打包到主包中"
+    else
+        echo "  无远程分包（可能需要检查配置）"
+    fi
+fi
+echo ""
 
 # Step 4: 生成 Codegen 并构建 APK
 echo -e "${GREEN}[4/5] 生成 Codegen 并构建 Android APK...${NC}"

@@ -41,15 +41,15 @@ export default Repack.defineRspackConfig({
       extraChunks: [
         {
           include: /FeatureScreen/,
-          type: 'local',  // 打包到 APK 中
+          type: 'remote',  // 从远程服务器加载
         },
         {
           include: /SettingsScreen/,
-          type: 'local',  // 打包到 APK 中
+          type: 'remote',  // 从远程服务器加载
         },
         {
           include: /ShopScreen/,
-          type: 'local',  // 打包到 APK 中
+          type: 'remote',  // 从远程服务器加载
         },
       ],
     }),
