@@ -41,23 +41,15 @@ export default Repack.defineRspackConfig({
       extraChunks: [
         {
           include: /feature/,
-          type: 'remote',
-          outputPath: path.join(__dirname, 'build/output/android/remote'),
+          type: 'local',  // 改为 local，打包到 APK 中
         },
         {
           include: /settings/,
-          type: 'remote',
-          outputPath: path.join(__dirname, 'build/output/android/remote'),
-        },
-        {
-          include: /profile/,
-          type: 'remote',
-          outputPath: path.join(__dirname, 'build/output/android/remote'),
+          type: 'local',  // 改为 local，打包到 APK 中
         },
         {
           include: /shop/,
-          type: 'remote',
-          outputPath: path.join(__dirname, 'build/output/android/remote'),
+          type: 'local',  // 改为 local，打包到 APK 中
         },
       ],
     }),
