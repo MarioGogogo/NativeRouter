@@ -58,8 +58,25 @@ npm run build-android:debug  # debug
 
 ### 技术栈
 
-- React 18.3.1 + React Native 0.77.0
+- React 19.2.0 + React Native 0.83.1
 - TypeScript 5.0
 - Zustand（状态管理）
+- react-native-reanimated 4.2.1（动画库）
 - @callstack/repack 5.2.3（代码分割）
 - Jest（测试）
+
+### 动画组件
+
+项目使用 react-native-reanimated 实现动画效果：
+
+- `RollingNumber` - 数字翻滚动画组件（用于显示如 +24% 这样的数字）
+- `AnimatedProgressBar` - 进度条动画组件（从左到右渐进效果）
+
+示例用法：
+```tsx
+// 数字翻滚动画
+<RollingNumber value={24} suffix="%" />
+
+// 进度条动画
+<AnimatedProgressBar progress={70} />
+```

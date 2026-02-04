@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
-  SafeAreaView,
+  Animated,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,6 +16,76 @@ import Toast, { ToastRef, ToastType } from '../components/Toast';
 import Dialog, { DialogRef, DialogType } from '../components/Dialog';
 
 const { width } = Dimensions.get('window');
+
+// 数字翻滚动画组件
+function RollingNumber({ value, suffix = '', duration = 1500 }: { value: number; suffix?: string; duration?: number }) {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    Animated.timing(animatedValue, {
+      toValue: value,
+      duration,
+      useNativeDriver: false,
+    }).start();
+
+    const listener = animatedValue.addListener(({ value: animatedVal }) => {
+      setDisplayValue(Math.round(animatedVal));
+    });
+
+    return () => animatedValue.removeListener(listener);
+  }, [value, duration, animatedValue]);
+
+  return (
+    <Animated.Text style={styles.cardValueWhite}>
+      {displayValue}{suffix}
+    </Animated.Text>
+  );
+}
+
+// 进度条动画组件
+function AnimatedProgressBar({
+  progress,
+  duration = 1200,
+  colors = ['#6366f1', '#8B5CF6'],
+}: {
+  progress: number;
+  duration?: number;
+  colors?: string[];
+}) {
+  const animatedWidth = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(animatedWidth, {
+      toValue: progress,
+      duration,
+      useNativeDriver: false,
+    }).start();
+  }, [progress, duration, animatedWidth]);
+
+  return (
+    <View style={styles.progressBarBg}>
+      <Animated.View
+        style={[
+          styles.progressBarFill,
+          {
+            width: animatedWidth.interpolate({
+              inputRange: [0, 100],
+              outputRange: ['0%', '100%'],
+            }),
+          },
+        ]}
+      >
+        <LinearGradient
+          colors={colors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ flex: 1 }}
+        />
+      </Animated.View>
+    </View>
+  );
+}
 
 // Mock Data
 const CATEGORIES: {
@@ -87,7 +157,7 @@ export default function RecommendScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" translucent={false} />
       <Toast ref={toastRef} />
       <Dialog ref={dialogRef} />
 
@@ -122,7 +192,7 @@ export default function RecommendScreen() {
             </View>
             <View>
               <Text style={styles.cardLabelWhite}>今日活跃</Text>
-              <Text style={styles.cardValueWhite}>+24%</Text>
+              <RollingNumber value={24} suffix="%" />
             </View>
           </LinearGradient>
 
@@ -138,9 +208,7 @@ export default function RecommendScreen() {
             </View>
             <View>
               <Text style={styles.cardLabelGray}>每月目标进度</Text>
-              <View style={styles.progressBarBg}>
-                <View style={styles.progressBarFill} />
-              </View>
+              <AnimatedProgressBar progress={70} />
             </View>
           </View>
         </View>
