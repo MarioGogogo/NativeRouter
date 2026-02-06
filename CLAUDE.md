@@ -23,9 +23,6 @@ npm test
 # 构建 iOS 包
 npm run bundle:ios
 
-# 构建 Android 包
-npm run bundle:android
-
 # 构建 Android 分包（用于远程加载）
 npm run bundle:android:chunk
 
@@ -36,25 +33,35 @@ npm run build-android:debug  # debug
 
 ## 项目架构
 
-这是一个使用 React Native 0.77.0 + TypeScript 构建的移动应用，采用 Re.Pack 实现代码分割（code splitting）。
+这是一个使用 React Native 0.83.1 + TypeScript 构建的移动应用，采用 Re.Pack 实现代码分割（code splitting）。
 
 ### 核心结构
 
 - **入口文件**: `index.js` - 配置 Re.Pack ScriptManager，支持开发环境从 DevServer 加载分包，生产环境从远程服务器加载
-- **主组件**: `App.tsx` - 使用 React.lazy + Suspense 实现按需加载屏幕组件
-- **屏幕目录**: `src/screens/` - 页面组件（HomeScreen, FeatureScreen, SettingsScreen, ProfileScreen, ShopScreen, ErrorScreen）
-- **组件目录**: `src/components/` - 共享组件（ChunkErrorBoundary, BackButton）
-- **状态管理**: `src/store/` - 使用 Zustand
+- **主组件**: `App.tsx` - 根导航容器，配置 SafeAreaProvider 和 NavigationContainer
+- **导航**: `src/navigation/RootNavigator.tsx` - 根导航器，包含登录页、Tab导航和分包页面
+- **Tab导航**: `src/navigation/TabNavigator.tsx` - 底部Tab栏导航
+- **屏幕目录**: `src/screens/` - 页面组件（LoginScreen, HomeScreen, SettingsScreen, ProfileScreen, ShopScreen 等）
+- **组件目录**: `src/components/` - 共享组件（ChunkErrorBoundary, UpdateDialog, Toast, Dialog）
+- **状态管理**: `src/store/useAppStore.ts` - 使用 Zustand，支持持久化到 AsyncStorage
+- **服务层**: `src/services/BundleConfigService.ts` - 云端分包配置获取
 
 ### 代码分割配置
 
 分包通过 webpackChunkName 命名：
-- `feature` -> FeatureScreen
 - `settings` -> SettingsScreen
-- `profile` -> ProfileScreen
 - `shop` -> ShopScreen
+- `feature` -> FeatureScreen
+- `update` -> UpdateTestScreen
 
-分包默认从 Gitee releases 加载：`https://gitee.com/webcc/doudizhu/releases/download/v1.1.0/{scriptId}.chunk.bundle`
+开发模式（`__DEV__`）下分包直接内联到主包，生产环境从远程加载。
+
+### 分包更新机制
+
+1. 应用启动时从云端 API 获取分包配置（`fetchBundleConfigWithRetry`）
+2. 用户进入分包页面时，ScriptManager 检查版本差异
+3. 发现新版本时显示 UpdateDialog 提示用户
+4. 用户确认后清除模块缓存并重新加载
 
 ### 技术栈
 
@@ -63,6 +70,7 @@ npm run build-android:debug  # debug
 - Zustand（状态管理）
 - react-native-reanimated 4.2.1（动画库）
 - @callstack/repack 5.2.3（代码分割）
+- React Navigation 7.x（导航）
 - Jest（测试）
 
 ### 动画组件
