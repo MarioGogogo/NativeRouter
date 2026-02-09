@@ -2,50 +2,45 @@
 <html class="light" lang="zh-CN"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>现代登录界面</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
-<script>
+<title>政务 App 登录界面 - 中文版</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        primary: "#6366f1",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
                     },
                     fontFamily: {
-                        display: ["'Plus Jakarta Sans'", "sans-serif"],
+                        "display": ["Public Sans", "PingFang SC", "Microsoft YaHei", "sans-serif"]
                     },
                     borderRadius: {
-                        DEFAULT: "1rem",
-                        'xl': '1.5rem',
-                        '2xl': '2rem',
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
                     },
                 },
             },
-        };
+        }
     </script>
-<style>
+<style type="text/tailwindcss">
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'Public Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
-        .mesh-gradient {
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+        .soft-gradient {
+            background: linear-gradient(135deg, #e0f0ff 0%, #ffffff 100%);
         }
-        .dark .mesh-gradient {
-            background-color: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.2) 0px, transparent 50%);
+        .dark .soft-gradient {
+            background: linear-gradient(135deg, #101922 0%, #1a2a3a 100%);
+        }
+        body {
+            min-height: max(884px, 100dvh);
         }
     </style>
 <style>
@@ -54,76 +49,77 @@
     }
   </style>
   </head>
-<body class="bg-background-light dark:bg-background-dark min-h-screen">
-<div class="relative w-full min-h-screen mesh-gradient flex flex-col">
-
-<div class="flex-1 flex flex-col px-8 justify-center max-w-[390px] mx-auto w-full">
-<div class="mb-12">
-<div class="w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
-<span class="material-icons-round text-primary text-3xl">bolt</span>
+<body class="bg-background-light dark:bg-background-dark text-[#0d141b] dark:text-slate-100 antialiased font-display">
+<div class="relative flex min-h-screen w-full flex-col soft-gradient overflow-x-hidden p-6">
+<div class="flex flex-col items-center justify-center pt-12 pb-8">
+<div class="bg-primary/10 dark:bg-primary/20 p-4 rounded-2xl mb-6 shadow-sm">
+<span class="material-symbols-outlined text-primary text-5xl">
+                    account_balance
+                </span>
 </div>
-<h1 class="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
-                    登录
-                </h1>
-<p class="text-slate-500 dark:text-slate-400 font-medium">
-                    欢迎回来
-                </p>
+<h2 class="text-sm font-semibold tracking-widest uppercase text-primary/80">政务通 移动版</h2>
 </div>
-<div class="space-y-6">
-<div class="space-y-4">
+<div class="mb-10 text-center px-4">
+<h1 class="text-[#0d141b] dark:text-white text-4xl font-bold leading-tight tracking-tight">欢迎回来</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base mt-2">登录以安全地访问您的数字化政务服务。</p>
+</div>
+<div class="flex flex-col gap-5 max-w-md mx-auto w-full">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">身份证号或手机号</label>
 <div class="relative group">
-<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-<span class="material-icons-round text-slate-400 group-focus-within:text-primary transition-colors">alternate_email</span>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                        person
+                    </span>
+<input class="w-full h-14 pl-12 pr-4 rounded-xl border-none bg-white dark:bg-slate-800 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] focus:ring-2 focus:ring-primary text-base placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all" placeholder="请输入您的账号" type="text"/>
 </div>
-<input class="block w-full pl-12 pr-4 py-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="邮箱地址" type="email"/>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center px-1">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300">密码</label>
+<a class="text-xs font-medium text-primary hover:underline" href="#">忘记密码？</a>
 </div>
 <div class="relative group">
-<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-<span class="material-icons-round text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
-</div>
-<input class="block w-full pl-12 pr-12 py-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="密码" type="password"/>
-<button class="absolute inset-y-0 right-0 pr-4 flex items-center">
-<span class="material-icons-round text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">visibility</span>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">
+                        lock
+                    </span>
+<input class="w-full h-14 pl-12 pr-12 rounded-xl border-none bg-white dark:bg-slate-800 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] focus:ring-2 focus:ring-primary text-base placeholder:text-slate-400 transition-all" placeholder="请输入密码" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined">visibility</span>
 </button>
 </div>
 </div>
-<div class="flex items-center justify-end">
-<a class="text-sm font-semibold text-primary hover:opacity-80 transition-opacity" href="#">忘记密码？</a>
-</div>
-<button class="w-full bg-primary py-4 rounded-2xl text-white font-bold text-lg shadow-lg shadow-primary/30 hover:shadow-primary/40 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                    进入
-                    <span class="material-icons-round">arrow_forward</span>
+<button class="w-full h-14 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2">
+                登录
+                <span class="material-symbols-outlined">arrow_forward</span>
 </button>
-<div class="relative py-4">
+<div class="relative my-6 text-center">
 <div class="absolute inset-0 flex items-center">
 <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
 </div>
-<div class="relative flex justify-center text-sm">
-<span class="px-2 bg-background-light dark:bg-background-dark text-slate-500 font-medium">或继续</span>
+<span class="relative px-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-full text-xs font-medium text-slate-400 uppercase tracking-widest">快速访问</span>
 </div>
-</div>
-<div class="grid grid-cols-2 gap-4">
-<button class="flex items-center justify-center gap-2 py-3 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-<img alt="Google Logo" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyGQWb5biHvs-Dz5qAyK_peD_YuXX6BtOmKnWzKJ10GNpZjbA0jKgXfOeFF6c2K25zu-xnGxRTOnu1JOGFXeraikEq1tfRIhO-GGXaY0y0dVVvT424kAhxiXGKjN3STi_PMPxa0kaB9YYTv5ZhnbB-esb7pPV6_jyzpJx5dXBr1eXnABFxJ-EfQfRGViHeQOfPlOcu2MhvkHc5nAVk3pJ329r3jEQUfueWLBY2IVuTqKue4EA5w9NTkTwLgspXabF1zT49xbinge7I"/>
-<span class="text-sm font-bold text-slate-700 dark:text-slate-200">Google</span>
+<div class="flex gap-4 items-center justify-center mb-10">
+<button class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 w-1/2 active:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">face</span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-300">面容识别</span>
 </button>
-<button class="flex items-center justify-center gap-2 py-3 px-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-<img alt="Apple Logo" class="w-5 h-5 dark:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW2cRwB1o7qWLWF9WMQMKExjdB1bjA2-kwqVVE5bS5Qlxe-F6_ld8hRhRtKwz3bnsc0ebjDpmF3GxXhQ3M6vVeQmU3nSs-GELw48PUTW2yDyQU7yRXCXNXCQre04nU5YNKBsUgxb13L-JFSHuUNfGO2sRkih31K1PKsc10Fu7bRl0Eua-LgQ2XbQgkxqX8_yfV9CErs_UjpCN-8kFioG0ZkhVP27Ru6RweD-fN0uB06px9xWEZTYYZh51Hzizy2KrOuaTzaZq76Caj"/>
-<span class="text-sm font-bold text-slate-700 dark:text-slate-200">Apple</span>
+<button class="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700 w-1/2 active:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">
+                        sms
+                    </span>
+<span class="text-xs font-bold text-slate-600 dark:text-slate-300">短信验证码</span>
 </button>
 </div>
 </div>
-</div>
-<div class="pb-12 px-8 text-center mt-auto">
-<p class="text-slate-500 dark:text-slate-400 font-medium">
-                还没有账户？ 
-                <a class="text-primary font-bold hover:underline" href="#">立即注册</a>
+<div class="mt-auto pb-6 text-center">
+<p class="text-sm text-slate-500 dark:text-slate-400">
+                还没有账号？ 
+                <a class="text-primary font-bold ml-1 hover:underline" href="#">立即注册</a>
 </p>
+<div class="mt-8 flex justify-center gap-6 opacity-40">
+<img class="h-6 grayscale object-contain" data-alt="Official government partnership logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDscazdea7nNxnORt2jh0cnksPWGTL4IbdadUI45OmAvJqeOB4gWouOnupogyjOZgyj1gqS-szETq37Mo_Hw2hOiIVRrWoEXvTwaonAnXyzWS5yjO8T7ejFltt71wXXtvxrDAH1j4eiC5DQ8D-OwCpBvD0Xkny4LMpAawmNLfBoU4JYMShbEI5_3CFFeaVdlDD5Mg421foKB0uI75ZV-wCO8AuGPpYOVXvLgkMDiNKWb4aMnEaKuoG68s05wUr4wGx4-ug_w63iypM"/>
 </div>
-<div class="pb-2 w-full flex justify-center">
-<div class="w-32 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
 </div>
 </div>
-
 
 </body></html>

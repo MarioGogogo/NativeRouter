@@ -5,12 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
-  StatusBar,
   useColorScheme,
   Image,
+  Platform,
+  Keyboard,
 } from 'react-native';
-import Svg, { Defs, RadialGradient, Stop, Rect } from 'react-native-svg';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useAppStore } from '../store/useAppStore';
 import { fetchBundleConfigWithRetry } from '../services/BundleConfigService';
@@ -20,394 +19,483 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-// --- Colors & Theme Configuration ---
-const COLORS = {
-  primary: '#5b5bf0', // slightly more vibrant indigo
-  white: '#ffffff',
-  backgroundLight: '#f5f6ff', // lighter, slightly blueish white to match screenshot
-  backgroundDark: '#0f172a',
-  slate900: '#1e293b',
-  slate500: '#64748b',
-  slate400: '#94a3b8',
-  slate200: '#e2e8f0',
-  slate300: '#cbd5e1',
-  slate700: '#334155',
-  slate800: '#1e293b',
-  slate50: '#f8fafc',
+// --- Design Tokens (与 index.html 保持一致) ---
+const DESIGN_TOKENS = {
+  colors: {
+    primary: '#137fec',
+    backgroundLight: '#f6f7f8',
+    backgroundDark: '#101922',
+  },
 };
 
-const MeshGradient = ({ isDark }: { isDark: boolean }) => {
-  const bgColor = isDark ? COLORS.backgroundDark : COLORS.backgroundLight;
-  // Increase opacity for visibility and adjust colors to match screenshot lavender tone
-  const color1 = isDark ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.25)'; // Indigo
-  const color2 = isDark ? 'rgba(168, 85, 247, 0.3)' : 'rgba(168, 85, 247, 0.25)'; // Purple
-
-  return (
-    <View style={StyleSheet.absoluteFill}>
-      <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
-        <Defs>
-          <RadialGradient
-            id="grad1"
-            cx="0"
-            cy="0"
-            rx="80%" // Larger radius
-            ry="60%"
-            fx="0"
-            fy="0"
-            gradientUnits="userSpaceOnUse"
-          >
-            <Stop offset="0" stopColor={color1} stopOpacity="1" />
-            <Stop offset="1" stopColor="transparent" stopOpacity="0" />
-          </RadialGradient>
-          <RadialGradient
-            id="grad2"
-            cx="100%"
-            cy="0"
-            rx="80%" // Larger radius
-            ry="60%"
-            fx="100%"
-            fy="0"
-            gradientUnits="userSpaceOnUse"
-          >
-            <Stop offset="0" stopColor={color2} stopOpacity="1" />
-            <Stop offset="1" stopColor="transparent" stopOpacity="0" />
-          </RadialGradient>
-        </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill={bgColor} />
-        <Rect x="0" y="0" width="100%" height="100%" fill="url(#grad1)" />
-        <Rect x="0" y="0" width="100%" height="100%" fill="url(#grad2)" />
-      </Svg>
-    </View>
-  );
-};
-
+// --- Main Login Screen ---
 export default function LoginScreen({ navigation }: LoginScreenProps) {
   const systemColorScheme = useColorScheme();
   const isDark = systemColorScheme === 'dark';
+
+  // 表单状态
+  const [account, setAccount] = useState('');
+  const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // 全局状态管理
   const { login } = useAppStore();
 
-  // 登录处理函数
-  const handleLogin = () => {
-    // 模拟登录成功，更新全局状态
-    login('mock-token-123', {
-      name: 'React Native 开发者',
-      level: 10,
-      points: 8888,
-    });
-
-    // 立即跳转到主页面（不等待分包配置加载）
-    navigation.replace('MainTabs');
-
-    // 后台异步获取分包配置（不阻塞页面跳转）
-    fetchBundleConfigWithRetry()
-      .then(config => {
-        console.log('[LoginScreen] Bundle config loaded:', config);
-        updateRemoteBundleConfig(config);
-      })
-      .catch(error => {
-        console.warn('[LoginScreen] Failed to fetch bundle config:', error);
-      });
+  // 主题颜色
+  const themeColors = {
+    background: isDark ? DESIGN_TOKENS.colors.backgroundDark : DESIGN_TOKENS.colors.backgroundLight,
+    cardBg: isDark ? '#1e293b' : '#ffffff',
+    text: isDark ? '#ffffff' : '#0d141b',
+    textSecondary: isDark ? '#94a3b8' : '#64748b',
+    textTertiary: isDark ? '#64748b' : '#64748b',
+    divider: isDark ? '#334155' : '#e2e8f0',
   };
 
-  const themeColors = isDark ? COLORS.backgroundDark : COLORS.backgroundLight;
-  const textColor = isDark ? COLORS.white : COLORS.slate900;
-  const subTextColor = isDark ? COLORS.slate400 : COLORS.slate500;
-  const inputBg = isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.5)';
-  const inputBorder = isDark ? COLORS.slate700 : COLORS.slate200;
-  const socialBtnBg = isDark ? COLORS.slate800 : COLORS.white;
-  const socialBtnBorder = isDark ? COLORS.slate700 : COLORS.slate200;
+  // 登录处理
+  const handleLogin = () => {
+    Keyboard.dismiss();
+    setLoading(true);
+
+    // 模拟登录延迟
+    setTimeout(() => {
+      setLoading(false);
+      login('mock-token-123', {
+        name: 'React Native 开发者',
+        level: 10,
+        points: 8888,
+      });
+
+      // 跳转
+      navigation.replace('MainTabs');
+
+      // 后台获取分包配置
+      fetchBundleConfigWithRetry()
+        .then(config => updateRemoteBundleConfig(config))
+        .catch(console.warn);
+    }, 1500);
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors }]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} translucent backgroundColor="transparent" />
-
-      {/* Full Screen Mesh Gradient */}
-      <MeshGradient isDark={isDark} />
-
-      {/* Main Content */}
-      <View style={styles.mainContent}>
-
-        {/* Header Section */}
-        <View style={styles.header}>
-          <View style={[styles.iconContainer, isDark ? styles.iconContainerDark : styles.iconContainerLight]}>
-            <MaterialIcons name="bolt" size={32} color={COLORS.primary} />
-          </View>
-          <Text style={[styles.title, { color: textColor }]}>登录</Text>
-          <Text style={[styles.subtitle, { color: subTextColor }]}>欢迎回来</Text>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+      {/* 顶部图标和标题区域 */}
+      <View style={styles.headerSection}>
+        <View
+          style={[
+            styles.logoContainer,
+            {
+              backgroundColor: isDark
+                ? 'rgba(19, 126, 236, 0.2)'
+                : 'rgba(19, 126, 236, 0.1)',
+            },
+          ]}
+        >
+          <MaterialIcons
+            name="account_balance"
+            size={40}
+            color={DESIGN_TOKENS.colors.primary}
+          />
         </View>
+        <Text style={[styles.appSubtitle, { color: themeColors.textSecondary }]}>
+          政务通 移动版
+        </Text>
+      </View>
 
-        {/* Form Section */}
-        <View style={styles.form}>
-          {/* Email Input */}
-          <View style={styles.inputGroup}>
-            <View style={styles.inputIcon}>
-              <MaterialIcons name="alternate-email" size={24} color={COLORS.slate400} />
-            </View>
+      {/* 欢迎区域 */}
+      <View style={styles.welcomeSection}>
+        <Text style={[styles.welcomeTitle, { color: themeColors.text }]}>
+          欢迎回来
+        </Text>
+        <Text style={[styles.welcomeSubtitle, { color: themeColors.textSecondary }]}>
+          登录以安全地访问您的数字化政务服务。
+        </Text>
+      </View>
+
+      {/* 表单区域 */}
+      <View style={styles.formSection}>
+        {/* 账号输入 */}
+        <View style={styles.inputContainer}>
+          <Text style={[styles.inputLabel, { color: themeColors.text }]}>
+            身份证号或手机号
+          </Text>
+          <View
+            style={[
+              styles.inputWrapper,
+              {
+                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                shadowColor: '#000000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 8,
+                elevation: 3,
+              },
+            ]}
+          >
+            <MaterialIcons
+              name="person"
+              size={22}
+              color="#94a3b8"
+              style={styles.inputIcon}
+            />
             <TextInput
-              style={[styles.input, { backgroundColor: inputBg, borderColor: inputBorder, color: textColor }]}
-              placeholder="邮箱地址"
-              placeholderTextColor={COLORS.slate400}
-              autoCapitalize="none"
-              keyboardType="email-address"
+              style={[styles.input, { color: themeColors.text }]}
+              placeholder="请输入您的账号"
+              placeholderTextColor="#94a3b8"
+              value={account}
+              onChangeText={setAccount}
+              keyboardType="default"
             />
           </View>
+        </View>
 
-          {/* Password Input */}
-          <View style={styles.inputGroup}>
-            <View style={styles.inputIcon}>
-              <MaterialIcons name="lock" size={24} color={COLORS.slate400} />
-            </View>
+        {/* 密码输入 */}
+        <View style={styles.inputContainer}>
+          <View style={styles.passwordLabelRow}>
+            <Text style={[styles.inputLabel, { color: themeColors.text }]}>密码</Text>
+          </View>
+          <View
+            style={[
+              styles.inputWrapper,
+              {
+                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                shadowColor: '#000000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 8,
+                elevation: 3,
+              },
+            ]}
+          >
+            <MaterialIcons
+              name="lock"
+              size={22}
+              color="#94a3b8"
+              style={styles.inputIcon}
+            />
             <TextInput
-              style={[styles.input, { backgroundColor: inputBg, borderColor: inputBorder, color: textColor }]}
-              placeholder="密码"
-              placeholderTextColor={COLORS.slate400}
+              style={[styles.input, { color: themeColors.text }]}
+              placeholder="请输入密码"
+              placeholderTextColor="#94a3b8"
+              value={password}
+              onChangeText={setPassword}
               secureTextEntry={secureTextEntry}
             />
             <TouchableOpacity
-              style={styles.eyeIcon}
               onPress={() => setSecureTextEntry(!secureTextEntry)}
+              style={styles.toggleButton}
             >
               <MaterialIcons
-                name={secureTextEntry ? "visibility" : "visibility-off"}
-                size={24}
-                color={COLORS.slate400}
+                name={secureTextEntry ? 'visibility' : 'visibility-off'}
+                size={22}
+                color="#94a3b8"
               />
             </TouchableOpacity>
           </View>
-
-          {/* Forgot Password Link */}
-          <View style={styles.forgotPassword}>
-            <TouchableOpacity>
-              <Text style={styles.forgotPasswordText}>忘记密码？</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Login Button */}
-          <TouchableOpacity style={styles.button} activeOpacity={0.8} onPress={handleLogin}>
-            <Text style={styles.buttonText}>进入</Text>
-            <MaterialIcons name="arrow-forward" size={20} color={COLORS.white} />
+          <TouchableOpacity style={styles.forgotPasswordButton}>
+            <Text style={styles.forgotPasswordText}>忘记密码？</Text>
           </TouchableOpacity>
+        </View>
 
-          {/* Divider */}
-          <View style={styles.dividerContainer}>
-            <View style={[styles.dividerLine, { borderTopColor: isDark ? COLORS.slate700 : COLORS.slate200 }]} />
-            <View style={styles.dividerTextContainer}>
-              <Text style={{ backgroundColor: themeColors, paddingHorizontal: 8, color: COLORS.slate500, fontSize: 14, fontWeight: '500' }}>或继续</Text>
-            </View>
-          </View>
-
-          {/* Social Login Buttons */}
-          <View style={styles.socialGrid}>
-            <TouchableOpacity style={[styles.socialButton, { backgroundColor: socialBtnBg, borderColor: socialBtnBorder }]}>
-              <Image source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCyGQWb5biHvs-Dz5qAyK_peD_YuXX6BtOmKnWzKJ10GNpZjbA0jKgXfOeFF6c2K25zu-xnGxRTOnu1JOGFXeraikEq1tfRIhO-GGXaY0y0dVVvT424kAhxiXGKjN3STi_PMPxa0kaB9YYTv5ZhnbB-esb7pPV6_jyzpJx5dXBr1eXnABFxJ-EfQfRGViHeQOfPlOcu2MhvkHc5nAVk3pJ329r3jEQUfueWLBY2IVuTqKue4EA5w9NTkTwLgspXabF1zT49xbinge7I' }} style={styles.socialIcon} />
-              <Text style={[styles.socialText, { color: isDark ? COLORS.slate200 : COLORS.slate700 }]}>Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.socialButton, { backgroundColor: socialBtnBg, borderColor: socialBtnBorder }]}>
-              <Image
-                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBW2cRwB1o7qWLWF9WMQMKExjdB1bjA2-kwqVVE5bS5Qlxe-F6_ld8hRhRtKwz3bnsc0ebjDpmF3GxXhQ3M6vVeQmU3nSs-GELw48PUTW2yDyQU7yRXCXNXCQre04nU5YNKBsUgxb13L-JFSHuUNfGO2sRkih31K1PKsc10Fu7bRl0Eua-LgQ2XbQgkxqX8_yfV9CErs_UjpCN-8kFioG0ZkhVP27Ru6RweD-fN0uB06px9xWEZTYYZh51Hzizy2KrOuaTzaZq76Caj' }}
-                style={[styles.socialIcon, isDark && { tintColor: 'white' }]}
+        {/* 登录按钮 */}
+        <TouchableOpacity
+          style={[
+            styles.loginButton,
+            {
+              backgroundColor: DESIGN_TOKENS.colors.primary,
+              shadowColor: DESIGN_TOKENS.colors.primary,
+            },
+          ]}
+          onPress={handleLogin}
+          disabled={loading}
+          activeOpacity={0.85}
+        >
+          <View style={styles.loginButtonContent}>
+            <Text style={styles.loginButtonText}>
+              {loading ? '登录中...' : '登录'}
+            </Text>
+            {!loading && (
+              <MaterialIcons
+                name="arrow_forward"
+                size={20}
+                color="white"
+                style={styles.loginButtonIcon}
               />
-              <Text style={[styles.socialText, { color: isDark ? COLORS.slate200 : COLORS.slate700 }]}>Apple</Text>
-            </TouchableOpacity>
+            )}
           </View>
+        </TouchableOpacity>
 
+        {/* 分隔线 */}
+        <View style={styles.dividerContainer}>
+          <View
+            style={[
+              styles.dividerLine,
+              { backgroundColor: themeColors.divider },
+            ]}
+          />
+          <Text
+            style={[
+              styles.dividerText,
+              { color: themeColors.textTertiary },
+            ]}
+          >
+            快速访问
+          </Text>
+          <View
+            style={[
+              styles.dividerLine,
+              { backgroundColor: themeColors.divider },
+            ]}
+          />
+        </View>
+
+        {/* 快速访问按钮 */}
+        <View style={styles.quickAccessRow}>
+          <TouchableOpacity
+            style={[
+              styles.quickAccessButton,
+              {
+                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                borderColor: isDark ? '#334155' : '#e2e8f0',
+              },
+            ]}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons
+              name="face"
+              size={28}
+              color={DESIGN_TOKENS.colors.primary}
+            />
+            <Text style={[styles.quickAccessLabel, { color: themeColors.text }]}>
+              面容识别
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.quickAccessButton,
+              {
+                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                borderColor: isDark ? '#334155' : '#e2e8f0',
+              },
+            ]}
+            activeOpacity={0.7}
+          >
+            <MaterialIcons
+              name="sms"
+              size={28}
+              color={DESIGN_TOKENS.colors.primary}
+            />
+            <Text style={[styles.quickAccessLabel, { color: themeColors.text }]}>
+              短信验证码
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={[styles.footerText, { color: subTextColor }]}>
-          还没有账户？{' '}
+      {/* 底部注册链接 */}
+      <View style={styles.footerSection}>
+        <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>
+          还没有账号？
         </Text>
         <TouchableOpacity>
-          <Text style={styles.signupText}>立即注册</Text>
+          <Text style={styles.footerLink}>立即注册</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Home Indicator */}
-      <View style={styles.homeIndicatorContainer}>
-        <View style={[styles.homeIndicator, { backgroundColor: isDark ? COLORS.slate700 : COLORS.slate300 }]} />
+      {/* 底部合作伙伴图标 */}
+      <View style={styles.partnersContainer}>
+        <Image
+          source={{
+            uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDscazdea7nNxnORt2jh0cnksPWGTL4IbdadUI45OmAvJqeOB4gWouOnupogyjOZgyj1gqS-szETq37Mo_Hw2hOiIVRrWoEXvTwaonAnXyzWS5yjO8T7ejFltt71wXXtvxrDAH1j4eiC5DQ8D-OwCpBvD0Xkny4LMpAawmNLfBoU4JYMShbEI5_3CFFeaVdlDD5Mg421foKB0uI75ZV-wCO8AuGPpYOVXvLgkMDiNKWb4aMnEaKuoG68s05wUr4wGx4-ug_w63iypM',
+          }}
+          style={styles.partnerIcon}
+          alt="Official government partnership logo"
+        />
       </View>
     </View>
   );
 }
 
+// --- Styles ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // Use minHeight logic from web if needed, but in RN flex:1 covers safe area usually
-    // We'll rely on Flexbox to distribute space
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
   },
-  mainContent: {
-    flex: 1,
-    paddingHorizontal: 32,
-    justifyContent: 'center',
-    maxWidth: 420, // max-w-[390px] a bit generous in RN
-    width: '100%',
-    alignSelf: 'center', // mx-auto
+  // Header
+  headerSection: {
+    alignItems: 'center',
+    marginBottom: 32,
   },
-  header: {
-    marginBottom: 48,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
+  logoContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24, // mb-6
-  },
-  iconContainerLight: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)', // Softer, lighter background for icon
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-  },
-  iconContainerDark: {
-    backgroundColor: 'rgba(99, 102, 241, 0.2)',
-  },
-  title: {
-    fontSize: 36, // text-4xl
-    fontWeight: '800',
-    marginBottom: 8, // mb-2
-    letterSpacing: -1,
-    fontFamily: 'System', // Fallback
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  form: {
-    gap: 24, // space-y-6 can be approximated with margin on items or gap in newer RN
-  },
-  inputGroup: {
-    position: 'relative',
     marginBottom: 16,
   },
-  inputIcon: {
-    position: 'absolute',
-    left: 16,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    zIndex: 1,
+  appSubtitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
   },
-  eyeIcon: {
-    position: 'absolute',
-    right: 16,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    zIndex: 1,
+  // Welcome
+  welcomeSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+    paddingHorizontal: 16,
+  },
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  welcomeSubtitle: {
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  // Form
+  formSection: {
+    gap: 20,
+  },
+  inputContainer: {
+    gap: 8,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  passwordLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginLeft: 4,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 56,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  inputIcon: {
+    marginRight: 12,
   },
   input: {
-    width: '100%',
-    height: 68,
-    paddingLeft: 48,
-    paddingRight: 16, // pr-4, for password pr-12 handled by paddingRight + icon space if needed
-    borderRadius: 34,
-    borderWidth: 1,
+    flex: 1,
+    height: '100%',
     fontSize: 16,
+    fontWeight: '500',
   },
-  forgotPassword: {
-    alignItems: 'flex-end',
-    // marginBottom: 0, // removed margin bottom since we use form gap logic conceptually or explicit margins
+  toggleButton: {
+    padding: 4,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginTop: 4,
+    marginRight: 4,
   },
   forgotPasswordText: {
-    color: COLORS.primary,
+    color: DESIGN_TOKENS.colors.primary,
+    fontSize: 12,
     fontWeight: '600',
-    fontSize: 14,
   },
-  button: {
-    width: '100%',
-    height: 68, // higher
-    backgroundColor: COLORS.primary,
-    borderRadius: 34, // fully rounded
-    flexDirection: 'row',
-    alignItems: 'center',
+  // Login Button
+  loginButton: {
+    height: 56,
+    borderRadius: 16,
     justifyContent: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 10 },
+    alignItems: 'center',
+    marginTop: 8,
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.3,
-    shadowRadius: 20,
+    shadowRadius: 16,
     elevation: 8,
   },
-  buttonText: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginRight: 8,
-  },
-  dividerContainer: {
-    position: 'relative',
-    paddingVertical: 16,
+  loginButtonContent: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  loginButtonIcon: {
+    marginLeft: 8,
+  },
+  // Divider
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
   },
   dividerLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+    flex: 1,
     height: 1,
-    borderTopWidth: 1,
   },
-  dividerTextContainer: {
-    position: 'relative',
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
   },
-  socialGrid: {
+  // Quick Access
+  quickAccessRow: {
     flexDirection: 'row',
     gap: 16,
+    marginBottom: 32,
   },
-  socialButton: {
+  quickAccessButton: {
     flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16, // adjusted vertical padding for higher look
-    borderRadius: 34, // fully rounded
+    paddingVertical: 16,
+    borderRadius: 16,
     borderWidth: 1,
+    gap: 8,
   },
-  socialIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
-    resizeMode: 'contain',
+  quickAccessLabel: {
+    fontSize: 12,
+    fontWeight: '700',
   },
-  socialText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  footer: {
-    paddingBottom: 48,
-    paddingHorizontal: 32,
+  // Footer
+  footerSection: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8, // Space for home indicator
+    justifyContent: 'center',
+    marginBottom: 32,
   },
   footerText: {
+    fontSize: 14,
     fontWeight: '500',
-    fontSize: 16,
   },
-  signupText: {
-    color: COLORS.primary,
-    fontWeight: 'bold',
-    fontSize: 16,
-    textDecorationLine: 'underline',
+  footerLink: {
+    color: DESIGN_TOKENS.colors.primary,
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 4,
   },
-  homeIndicatorContainer: {
-    paddingBottom: 8,
-    width: '100%',
+  // Partners
+  partnersContainer: {
     alignItems: 'center',
+    opacity: 0.4,
   },
-  homeIndicator: {
-    width: 128,
-    height: 6,
-    borderRadius: 3,
+  partnerIcon: {
+    height: 24,
+    resizeMode: 'contain',
   },
 });
